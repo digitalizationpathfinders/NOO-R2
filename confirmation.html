@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Notice of objections</title>
+        <link rel="stylesheet" href="styles/base.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    </head>
+    <body>
+          <header class="header">
+         <div class="top-ctn">
+            <div class="top-content">
+               <div class="brand">
+                  <img src="https://www.canada.ca/etc/designs/canada/wet-boew/assets/sig-blk-en.svg" alt="Government of Canada">
+               </div>
+               <a href="#" class="language-switch">Français</a>
+            </div>
+         </div>
+         <div class="bottom-ctn">
+            <div class="bottom-content">
+               <a href="#">Canada.ca</a>
+               <span class="material-icons">chevron_right</span>
+               <a href="#">Canada Revenue Agency (CRA)</a>
+               <span class="material-icons">chevron_right</span>
+               <a href="#">Objections, appeals, disputes, and relief measures</a>
+            </div>
+         </div>
+      </header>
+        <div class="confirmation-wrapper">
+            <div class="h1-wrapper">
+                <div class="top-line">
+                    <h1>Notice of objection - confirmation</h1>
+                    <a><span class="material-icons">help</span>Help</a>
+                    
+                </div>
+                
+                <div class="sub-line">
+                    <span class="date-stamp"></span>
+                    <a>Print/Save</a>
+                </div>
+            </div>
+           
+            <div class="alert">
+                <div class="alert-success">
+                    <div class="line"></div>
+                    <div><span class="material-icons">
+                        check_circle
+                        </span>
+                    </div>
+                    <div class="line"></div>
+                </div>
+                <div class="alert-content">
+                    <h4>Success</h4>
+                Your objection request has been received. Your confirmation number is <strong>1234567</strong>.
+               
+                    
+                </div>
+            </div>
+      
+            <h3>Next steps</h3>
+       
+            <ul>
+                <li>Save the confirmation number above for your records.
+                </li>
+                <li><strong>If further information is required,</strong>an appeals officer will contact you for supporting documentation, to review all the facts and/or discuss your objection.
+                </li>
+                <li><strong>If there is a balance owing,</strong> interest will continue to grow on the unpaid balance. You can reduce or avoid interest charges by making a payment on your account.
+                </li>
+                
+            </ul>
+                         <p>
+                For information on CRA processing times, go to <a>Processing times and complexity levels - Income tax and GST/HST Objections <span class="material-icons">open_in_new</span></a>.
+             </p>
+            <button class="btn btn-primary next-button" type="button" onclick="returnToHome()">Return to Canada.ca</button>
+        </div>
+    </body>
+<script>
+    function returnToHome(){
+        window.location.href="index.html";
+        sessionStorage.clear();
+    }
+</script>
+        
+
+</html>
+
