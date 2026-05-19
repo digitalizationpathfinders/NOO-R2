@@ -567,6 +567,7 @@ padding:8px;
 }
 
 .required-label, .optional-label {
+   font-weight:bold!important;
   padding-top:12px;
   /* display:flex; */
   text-indent: -17px; 
@@ -610,10 +611,13 @@ input:disabled,
   background-color:#BDBDBD;
   color:#888;
 }
+
+
 label, fieldset, legend {
   display: block;
   padding:0;
   margin:0;
+ 
   
 }
 
@@ -735,6 +739,13 @@ textarea {
   display: flex;
   flex-flow: row nowrap;
   justify-content:flex-start;
+}
+
+.sub-group {
+  margin-left:48px;
+}
+.sub-group .required-label {
+  padding-top:0 !important;
 }
 
 .label-group{

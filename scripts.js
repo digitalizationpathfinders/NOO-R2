@@ -106,15 +106,13 @@ class Stepper {
                 if (input.closest('.hidden')) return;
 
                 const name = input.name;
-                if(!name) return;
+                if (!name) return;
 
-                if(input.dataset.array === "true") {
+                if (input.dataset.array === "true") {
                     if (!dataObj[name]) dataObj[name] = [];
-                        if (input.value !== "") 
-                            dataObj[name].push(input.value);
-                }
-                
-                else {
+                    if (input.value !== "")
+                        dataObj[name].push(input.value);
+                } else {
                     if (input.type === "radio") {
                         if (input.checked) {
                             dataObj[input.name] = input.value;
@@ -128,29 +126,65 @@ class Stepper {
                         dataObj[input.name] = input.value;
                     }
                 }
-                
+
             });
-            
+
             Object.keys(dataObj).forEach(k => {
                 if (Array.isArray(dataObj[k]) && dataObj[k].length === 0) {
                     delete dataObj[k];
                 }
-                });
+            });
 
         }
-
+        if(stepNum === 1){
+            const bizSummary = this.buildBusinessNumberSummary(stepForm);
+                if (bizSummary.length) {
+                    dataObj["s1biz-accounttype"] = bizSummary;
+                }
+        }
         // Step 2 special: include tax lines table
         if (stepNum === 2) {
-            if(this.stepHandlers[2]?.taxLinesTable) {
+            if (this.stepHandlers[2]?.taxLinesTable) {
                 dataObj["notices"] = this.stepHandlers[2].noticesTables.rows;
             }
-            
+
         }
-    
+
         DataManager.saveData(`stepData_${stepNum}`, dataObj);
     }
 
+    buildBusinessNumberSummary(stepForm) {
+                const summary = [];
 
+            const mappings = [
+                { checkbox: "s1biz-accounttype-op1", label: "Corporation income tax", prefix: "RC", bn9: "s1biz-BN9-RC", bn4: "s1biz-BN4-RC" },
+                { checkbox: "s1biz-accounttype-op2", label: "GST/HST", prefix: "RT", bn9: "s1biz-BN9-RT", bn4: "s1biz-BN4-RT" },
+                { checkbox: "s1biz-accounttype-op3", label: "Payroll", prefix: "RP", bn9: "s1biz-BN9-RP", bn4: "s1biz-BN4-RP" },
+                { checkbox: "s1biz-accounttype-op4", label: "Air Travellers Security Charge", prefix: "ZA", bn9: "s1biz-BN9-ZA", bn4: "s1biz-BN4-ZA" },
+                { checkbox: "s1biz-accounttype-op5", label: "Excise Duty", prefix: "RD", bn9: "s1biz-BN9-RD", bn4: "s1biz-BN4-RD" },
+                { checkbox: "s1biz-accounttype-op6", label: "Excise Tax on Insurance Premiums", prefix: "RN", bn9: "s1biz-BN9-RN", bn4: "s1biz-BN4-RN" },
+                { checkbox: "s1biz-accounttype-op7", label: "Fuel Charge", prefix: "CT", bn9: "s1biz-BN9-CT", bn4: "s1biz-BN4-CT" },
+                { checkbox: "s1biz-accounttype-op8", label: "Luxury Tax", prefix: "LT", bn9: "s1biz-BN9-LT", bn4: "s1biz-BN4-LT" },
+                { checkbox: "s1biz-accounttype-op9", label: "Underused Housing Tax", prefix: "RU", bn9: "s1biz-BN9-RU", bn4: "s1biz-BN4-RU" },
+                { checkbox: "s1biz-accounttype-op11", label: "Global minimum tax", prefix: "PT", bn9: "s1biz-BN9-PT", bn4: "s1biz-BN4-PT" }
+            ];
+
+            mappings.forEach(m => {
+                const cb = document.getElementById(m.checkbox);
+
+                if (cb && cb.checked) {
+                    const bn9 = document.getElementById(m.bn9)?.value?.trim() || "";
+                    const bn4 = document.getElementById(m.bn4)?.value?.trim() || "";
+
+                    // Only include if at least partial data exists
+                    const fullNumber = `${bn9} ${m.prefix}${bn4}`.trim();
+
+                    summary.push(`${m.label} (${fullNumber})`);
+                }
+            });
+
+            return summary.join("<br>");
+    }
     loadStoredData() {
         this.steps.forEach((step, index) => {
             let savedData = DataManager.getData(`stepData_${index}`);
@@ -187,84 +221,80 @@ class Stepper {
 
             }
         }
-        if(stepNum == 2){
-            
+        if (stepNum == 2) {
+
             this.stepHandlers[stepNum].onActivate();
         }
-          
 
-        
- 
+
+
 
     }
 }
 class Step1Handler {
     constructor() {
-        
-        this.indAddSubjectBtn = document.getElementById("add-indsubject-btn");
-        this.indSelectsContainer = document.getElementById("ind-selectscontainer");
-        this.indSelects = 1;
-    
-        // this.indAddSubjectBtn.addEventListener("click", () => {
-        //     this.addSubject()
-        // });
+
+        this.userFlow = null;
 
         this.canadaAddress = document.getElementById("s1-address");
         this.countryDropdown = document.getElementById("s1-country");
         this.countryDropdown.addEventListener("change", () => {
-            
             this.showAddress(this.countryDropdown.value);
         });
 
-
-        this.indThirdPartyNumber = document.getElementById("s1-ind-thirdpartyref-fieldset");
-
         this.businessAccountFieldset = document.getElementById("s1biz-bizaccount-fieldset");
         this.businessAccountFieldset.addEventListener("change", () => {
-           const selected = document.querySelector('input[name="s1biz-accounttype"]:checked');
-           console.log(selected)
-                this.updateAccountField(selected);
-                this.thirdPartyDisplay(2, selected);
+            const bizTypes = document.querySelectorAll('input[name="s1biz-accounttype"]:checked');
+
+            // bizTypes.forEach(checkbox => {
+            //     console.log(checkbox)
+            // });
+
+           // this.updateAccountField(bizTypes);
+           // this.thirdPartyDisplay(bizTypes);
         });
-        this.userTypeQuestion = document.getElementById("s1q7-fieldset");
-        this.userTypeQuestion.addEventListener("change", () => {
-            
-            this.userFlow = this.userTypeQuestion.querySelector("input:checked");
+        this.userTypeFieldset = document.getElementById("s1q7-fieldset");
+        this.userTypeFieldset.addEventListener("change", () => {
+
+            this.userFlow = this.userTypeFieldset.querySelector("input:checked").getAttribute("data-flow");
+
             this.updateAddressFieldLabels();
-            
+
         })
-       
+
 
         this.accountFieldset = document.getElementById("s1biz-bn-fieldset");
-        this.bizThirdPartyNumber = document.getElementById("s1-biz-thirdpartyref-fieldset"); 
-        this.bn9Field = document.getElementById("s1biz-bn-wrapper");
-        this.bnFreeFormField = document.getElementById("s1biz-bnfreeform")
-        this.prefixDiv = this.accountFieldset.querySelector(".static");
+
+       // this.bn9Field = document.getElementById("s1biz-bn-wrapper");
+        //this.bnFreeFormField = document.getElementById("s1biz-bnfreeform")
+        //this.prefixDiv = this.accountFieldset.querySelector(".static");
 
         this.telephoneNumFieldset = document.getElementById("telephone-fieldset");
         this.mailingAddressFieldset = document.getElementById("mailing-fieldset");
         this.contactNameFieldset = document.getElementById("contactname-fieldset");
-       
+
+
+        this.indThirdPartyNumber = document.getElementById("s1-ind-thirdpartyref-fieldset");
+        //this.bizThirdPartyNumber = document.getElementById("s1-biz-thirdpartyref-fieldset");
+
     }
 
-    updateAddressFieldLabels(){
-         const telLabel = this.telephoneNumFieldset.querySelector("label").childNodes[1];
-         const mailingLabel = this.mailingAddressFieldset.querySelector("label").childNodes[1];
+    updateAddressFieldLabels() {
+        const telLabel = this.telephoneNumFieldset.querySelector("label").childNodes[1];
+        const mailingLabel = this.mailingAddressFieldset.querySelector("label").childNodes[1];
 
 
-        if(this.userFlow.value === "A business") {
-           telLabel.textContent = "Contact telephone number";
-           this.contactNameFieldset.classList.remove("hidden");
-           mailingLabel.textContent = "Business address";
-        }
-        else if(this.userFlow.value === "A trust"){
-        
+        if (this.userFlow.value === 2) {
+            telLabel.textContent = "Contact telephone number";
+            this.contactNameFieldset.classList.remove("hidden");
+            mailingLabel.textContent = "Business address";
+        } else if (this.userFlow.value === 3) {
+
             telLabel.textContent = "Telephone number";
             this.contactNameFieldset.classList.add("hidden");
             mailingLabel.textContent = "Mailing address";
 
-        }
-        else {
+        } else {
             telLabel.textContent = "Telephone number";
             this.contactNameFieldset.classList.add("hidden");
             mailingLabel.textContent = "Mailing address";
@@ -272,73 +302,65 @@ class Step1Handler {
 
         }
     }
-     addSubject() {
-        this.indSelects++;
-        const firstSelect = this.indSelectsContainer.querySelector(".select-row");
-        const clone = firstSelect.cloneNode(true);
-        this.indSelectsContainer.appendChild(clone);
-    
-    }
 
-    showAddress(selectedValue){
-        if(selectedValue === "Canada"){
+
+    showAddress(selectedValue) {
+        if (selectedValue === "Canada") {
             this.canadaAddress.classList.remove("hidden");
-        }
-        else {
+        } else {
             this.canadaAddress.classList.add("hidden");
 
         }
-        
+
     }
 
-    thirdPartyDisplay(flow, selectedValue) {
-        if (selectedValue === "thirdparty") {
-            if(flow === 1) {
-                this.indThirdPartyNumber.classList.remove("hidden");
-                this.bizThirdPartyNumber.classList.add("hidden");
-                this.bnFreeFormField.classList.add("hidden");
-                this.bn9Field.classList.add("hidden");
-            }
-            else {
-                this.bizThirdPartyNumber.classList.remove("hidden");
-                this.indThirdPartyNumber.classList.add("hidden");
-                this.bnFreeFormField.classList.remove("hidden");
-                this.bn9Field.classList.add("hidden");
-
-
-            }
-        }
-        else {
-            this.indThirdPartyNumber.classList.add("hidden");
-            this.bizThirdPartyNumber.classList.add("hidden");
-            this.bnFreeFormField.classList.add("hidden");
-            this.bn9Field.classList.remove("hidden");
-
-        }
-             
-    }
-   updateAccountField(selectedValue) {
-    
-        if(selectedValue !== "thirdparty"){
-        // Update the prefix div
-
-        console.log(selectedValue)
-                this.prefixDiv.textContent = selectedValue || "";
-
-                // Show/hide the fieldset
-                if (selectedValue) {
-                    this.accountFieldset.classList.remove("hidden");
-                } else {
-                    this.accountFieldset.classList.add("hidden");
-                }
-        }
-        else {
-
-        }
+    // thirdPartyDisplay(selectedValues) {
         
-        
-        
-    }
+    //     if (selectedValues === "thirdparty") {
+    //         console.log("hello")
+    //         if (this.userFlow === 1) {
+    //             this.indThirdPartyNumber.classList.remove("hidden");
+    //             this.bizThirdPartyNumber.classList.add("hidden");
+    //             this.bnFreeFormField.classList.add("hidden");
+    //             this.bn9Field.classList.add("hidden");
+    //         } else {
+    //             this.bizThirdPartyNumber.classList.remove("hidden");
+    //             this.indThirdPartyNumber.classList.add("hidden");
+    //             this.bnFreeFormField.classList.remove("hidden");
+    //             this.bn9Field.classList.add("hidden");
+
+
+    //         }
+    //     } else {
+    //         this.indThirdPartyNumber.classList.add("hidden");
+    //         this.bizThirdPartyNumber.classList.add("hidden");
+    //         this.bnFreeFormField.classList.add("hidden");
+    //         this.bn9Field.classList.remove("hidden");
+
+    //     }
+
+    // }
+    // updateAccountField(selectedValue) {
+
+    //     if (selectedValue !== "thirdparty") {
+    //         // Update the prefix div
+
+    //         //const bizPrefix = selectedValue.getAttribute("data-prefix");
+    //         this.prefixDiv.textContent = bizPrefix || "";
+
+    //         // Show/hide the fieldset
+    //         if (selectedValue) {
+    //             this.accountFieldset.classList.remove("hidden");
+    //         } else {
+    //             this.accountFieldset.classList.add("hidden");
+    //         }
+    //     } else {
+
+    //     }
+
+
+
+    // }
 }
 class Step2Handler {
     constructor() {
@@ -354,14 +376,14 @@ class Step2Handler {
         this.renderInitialView();
         this.setupListeners();
 
-       
+
         this.noticeTypeSelection = document.querySelectorAll('input[name="s2q1"]');
         this.noticeDateField = document.getElementById("s2-noticedate-field");
         //this.noticeDateLabel = this.noticeDateField.parentElement.querySelector('label');
         this.extensionFieldset = document.getElementById("s2-timeextension-fieldset");
 
         this.userType = this.getUserType();
-    
+
         this.taxYearsFieldset = document.getElementById("tax-years-fieldset");
         this.fiscalFieldset = document.getElementById("fiscal-period-fieldset");
 
@@ -377,27 +399,26 @@ class Step2Handler {
         if (this.addTaxYearBtn) {
             this.addTaxYearBtn.addEventListener("click", () => this.addTaxYearInput());
         }
-         if (this.addLineNumberBtn) {
+        if (this.addLineNumberBtn) {
             this.addLineNumberBtn.addEventListener("click", () => this.addLineNumberInput());
         }
         this.noticeDateField.addEventListener("change", () => {
             this.handleNoticeDateChange();
         });
 
-        
-    
+
+
 
     }
     renderInitialView() {
 
-        
 
-        
+
 
     }
 
-    setupListeners(){
-         document.addEventListener("lightboxSubmitted", (event) => {
+    setupListeners() {
+        document.addEventListener("lightboxSubmitted", (event) => {
             if (event.detail.lightboxId === "addnotice-lightbox") {
                 this.handleFormSubmit(event.detail.formData);
             }
@@ -417,7 +438,7 @@ class Step2Handler {
         document.addEventListener("rowDeleted", () => {
             DataManager.saveData("notices", this.noticesTable.rows);
 
-    
+
         });
     }
 
@@ -426,29 +447,29 @@ class Step2Handler {
         const newNotice = this.getNewNoticeFromForm(formData);
 
         this.updateNoticeTable(newNotice, editIndex);
- 
+
 
     }
     getNewNoticeFromForm(formData) {
-        
-       let noticeDate = formData["s2noticedate"];
-       let taxYear;
+
+        let noticeDate = formData["s2noticedate"];
+        let taxYear;
 
         if (this.userType === "Business") {
             // Replace tax year with reporting period (From → To)
             taxYear = `${formData["s2_fiscalperiodstart"]} to ${formData["s2_fiscalperiodend"]}`;
         } else {
             // Handle normal tax year (may be array)
-            taxYear = Array.isArray(formData["s2q3"])
-                ? formData["s2q3"].join(", ")
-                : formData["s2q3"];
+            taxYear = Array.isArray(formData["s2q3"]) ?
+                formData["s2q3"].join(", ") :
+                formData["s2q3"];
         }
 
         return {
             noticeDate: noticeDate,
             taxYear: taxYear
         };
-    ``
+        ``
     }
 
 
@@ -470,14 +491,14 @@ class Step2Handler {
         }
         DataManager.saveData("notices", this.noticesTable.rows);
     }
-    
-    getUserType(){
+
+    getUserType() {
         const step1 = DataManager.getData("stepData_1");
         const normalized = {
             "A business": "Business",
             "A trust": "Trust",
             "An individual": "Individual"
-            };
+        };
 
         this.userType = normalized[step1?.s1q7];
     }
@@ -486,7 +507,7 @@ class Step2Handler {
         this.setYearOrFiscalField();
     }
 
-    
+
     setYearOrFiscalField() {
 
         if (!this.userType) return;
@@ -511,8 +532,8 @@ class Step2Handler {
         newInput.dataset.array = "true";
         newInput.classList.add("tax-year-input", "quarter-width");
         this.taxYearsContainer.appendChild(newInput);
-       
-     
+
+
     }
     addLineNumberInput() {
         this.lineNumberCount++;
@@ -520,16 +541,16 @@ class Step2Handler {
         newInput.type = "text";
         newInput.id = "s2q4-field";
         newInput.name = "s2q4";
-       
+
         newInput.dataset.array = "true";
         newInput.classList.add("linenumber-input", "half-width");
         this.lineNumbersContainer.appendChild(newInput);
-       
-     
+
+
     }
 
 
-  
+
     handleNoticeDateChange() {
         const dateValue = this.noticeDateField.value;
         const showExtension = this.isMoreThan90Days(dateValue);
@@ -549,15 +570,13 @@ class Step2Handler {
         const today = new Date();
         const diffDays = (today - entered) / (1000 * 60 * 60 * 24);
 
-       
+
         return diffDays > 90;
-        
+
     }
 
 
 
-
-    
 
 }
 
@@ -598,20 +617,25 @@ class Step3Handler {
 
             }
         ];
-        steps.forEach(({ stepNum, title, storageKey, labels }) => {
+        steps.forEach(({
+            stepNum,
+            title,
+            storageKey,
+            labels
+        }) => {
             let data = DataManager.getData(storageKey);
-            if (!data) return; 
+            if (!data) return;
 
             // Replace field names with question labels
             let formattedData = {};
             let subTableData = null; // Placeholder for subtable
-            
+
 
             Object.keys(data).forEach(key => {
                 let value = data[key];
                 if (value == null) return;
 
-               if (key === "notices") {
+                if (key === "notices") {
                     subTableData = {
                         title: "Notices you added",
                         headers: ["Notice date", "Tax year"],
@@ -619,13 +643,12 @@ class Step3Handler {
                         rows: value
                     };
                     return;
-                    }
+                }
 
-                if (key === "s1biz-accountype") {
-                    const select = document.getElementById("s1biz-accountype"); // your select input
-                    if (select) {
-                        value = select.selectedOptions[0]?.text || value;
-                    }
+                if (key === "s1biz-accounttype") {
+                    const label = "Select the business account type.";
+                    formattedData[label] = Array.isArray(value) ? value.join("<br>") : value;
+                    return;
                 }
 
                 // Format dates
@@ -1332,7 +1355,7 @@ class FormLightbox {
                 input.checked = false;
             } else {
                 input.value = "";
-                
+
             }
         });
         let hiddenEls = this.form.querySelectorAll("[data-inithidden]");
@@ -1506,7 +1529,7 @@ class ProgressiveDisclosure {
 
     hideWithSubfields(element) {
         element.classList.add("hidden");
-         
+
 
         // Clear all inputs inside the hidden element
         const inputs = element.querySelectorAll('input, select, select-one, textarea, option');
@@ -1515,12 +1538,11 @@ class ProgressiveDisclosure {
                 input.checked = false;
             } else if (input.type === 'text') {
                 input.value = '';
-               
-            }
-            else if (input.type === 'select-one') {
+
+            } else if (input.type === 'select-one') {
                 input.selectedIndex = 0;
             }
-            
+
         });
 
         // Recursively hide any nested fields inside this element

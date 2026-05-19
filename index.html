@@ -264,15 +264,15 @@
                      <fieldset id="s1q7-fieldset" class="hidden" data-radio-group>
                         <legend class="required-label">Who is this request for?</legend>
                         <div class="group">
-                           <input type="radio" id="s1q7-op1" name="s1q7" value="An individual" data-toggle="individual-info-section,s1-addresssection">
+                           <input type="radio" id="s1q7-op1" name="s1q7" value="An individual" data-flow="1" data-toggle="individual-info-section,s1-addresssection">
                            <label for="s1q7-op1"></label>
                         </div>
                         <div class="group">
-                           <input type="radio" id="s1q7-op2" name="s1q7" value="A business" data-toggle="business-info-section,s1-addresssection">
+                           <input type="radio" id="s1q7-op2" name="s1q7" value="A business" data-flow="2" data-toggle="business-info-section,s1-addresssection">
                            <label for="s1q7-op2"></label>
                         </div>
                         <div class="group">
-                           <input type="radio" id="s1q7-op3" name="s1q7" value="A trust" data-toggle="trust-info-section,s1-addresssection">
+                           <input type="radio" id="s1q7-op3" name="s1q7" value="A trust" data-flow="3" data-toggle="trust-info-section,s1-addresssection">
                            <label for="s1q7-op3"></label>
                         </div>
                      </fieldset>
@@ -346,106 +346,254 @@
                               <div class="alert-content">
                                  Filing an objection may not be the best solution for your situation.  You may be looking to waive or cancel taxes on your excess TFSA contributions. To learn how to do so, go to <a href="#">Waiver or cancellation of the TFSA taxes</a>
                               </div>
-                     </div>
-                          <!-- <div id="ind-selectscontainer" class="vertical-stack">
-                           <div class="select-row">
-                              <select name="s1ind-taxtype">
-                                 <option value="" selected>(Select)</option>
-                                 <option value="Income tax">Income tax</option>
-                                 <option value="GST/HST credit or other provincial/territorial programs">GST/HST credit or other provincial/territorial programs</option>
-                                 <option value="Canada Child Benefit (CCB) or other provincial/territorial programs">Canada Child Benefit (CCB) or other provincial/territorial programs</option>
-                                 <option value="Disability Tax Credit (DTC)">Disability Tax Credit (DTC)</option>
-                                 <option value="First Home Savings Account (FHSA) assessment notice">First Home Savings Account (FHSA) assessment notice</option>
-                                 <option value="Tax-Free Savings Account (TFSA)">Tax-Free Savings Account (TFSA)</option>
-                                 <option value="thirdparty">Third-party assessment (T779 / GST259)</option>
-                              </select>
-                           </div>
-                        </div> -->
-                        
-                        <!-- <button type="button" class="btn btn-secondary inline-btn" id="add-indsubject-btn"><span class="material-icons">add_circle</span>
-                        Add another subject
-                        </button> -->
-
-                        </fieldset>
-                        <fieldset id="s1-ind-thirdpartyref-fieldset" class="hidden">
-                           <label class="required-label" for="s1-ind-thirdpartyref">Third-party reference number</label>
-                           <input type="text" class="half-width" name="thirdpartyref" id="s1-ind-thirdpartyref">
-                        </fieldset>
-                        <fieldset id="ind-name-fieldset" class="field-row">
-                           <div>
-                              <label class="required-label" for="s1ind-firstname">First name</label>
-                              <input type="text" id="s1ind-firstname" name="s1ind-fname">
-                           </div>
-                           <div>
-                              <label class="required-label" for="s1ind-lastname">Last name</label>
-                              <input type="text" id="s1ind-lastname" name="s1ind-lname">
-                           </div>
-                        </fieldset>
-                        <fieldset>
-                           <label class="required-label" for="s1ind-sin">Social insurance number, international tax number, or temporary tax number (9 digits)</label>
-                           <input class="half-width" type="text" id="s1ind-sin" name="s1ind-sin" maxlength="9">
-                        </fieldset>
-                        
-                     </div>
-
-                     <div id="business-info-section" class="hidden">
-                        <fieldset id="s1biz-bizname-fieldset">
-                           <label for="s1biz-bizname" class="required-label">Business name</label>
-                           <input id="s1biz-bizname" name="s1biz-bizname" type="text"/>
-                        </fieldset>
-                        <fieldset id="s1biz-bizaccount-fieldset">
-                           <label for="s1biz-accountype" class="required-label">Select the business type.</label>
-                           <div class="checkbox-group">
-                              <div class="group">
-                                 <input name="s1biz-accounttype" id="s1biz-accounttype-op1" type="checkbox" value="Corporation income tax (RC)" data-prefix="RC">
-                                 <label for="s1biz-accounttype-op1"></label>
-                              </div>
-                              <div class="group">
-                                 <input name="s1biz-accounttype" id="s1biz-accounttype-op2" type="checkbox" value="GST/HST (RT)" data-prefix="RT">
-                                 <label for="s1biz-accounttype-op2"></label>
-                                 </div>
-                           
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op3" type="checkbox" value="Payroll (RP)" data-prefix="RP">
-                               <label for="s1biz-accounttype-op3"></label>
-                              </div>
-                                                      
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op4" type="checkbox" value="Air Travellers Security Charge (ZA)" data-prefix="ZA">
-                               <label for="s1biz-accounttype-op4"></label>
-                              </div>
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op5" type="checkbox" value="Excise Duty (RD)" data-prefix="RD">
-                               <label for="s1biz-accounttype-op5"></label>
-                              </div>
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op6" type="checkbox" value="Excise Tax on Insurance Premiums (RN)" data-prefix="RN">
-                               <label for="s1biz-accounttype-op6"></label>
-                              </div>
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op7" type="checkbox" value="Fuel Charge (CT)" data-prefix="RT">
-                               <label for="s1biz-accounttype-op7"></label>
-                              </div>
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op8" type="checkbox" value="Luxury Tax (LT)" data-prefix="LT">
-                               <label for="s1biz-accounttype-op8"></label>
-                              </div>
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op9" type="checkbox" value="Underused Housing Tax (RU)" data-prefix="RU">
-                               <label for="s1biz-accounttype-op9"></label>
-                              </div>
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op10" type="checkbox" value="Third-party assessment (T779 / GST259)" data-toggle="s1-ind-thirdpartyref-fieldset">
-                               <label for="s1biz-accounttype-op10"></label>
-                              </div>
-                              <div class="group">
-                               <input name="s1biz-accounttype" id="s1biz-accounttype-op11" type="checkbox" value="Global minimum tax (PT / RC)" data-prefix="PT/RC">
-                               <label for="s1biz-accounttype-op11"></label>
-                              </div>
-
-
+                     
                            </div>
                            </fieldset>
+                           </div>
+                     <div id="business-info-section" class="hidden">
+                        <fieldset id="s1biz-bizaccount-fieldset">
+                           <label for="s1biz-accountype" class="required-label">Select the business account type.</label>
+
+                           <div class="checkbox-group">
+
+                              <!-- RC -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-rc" 
+                                    id="s1biz-accounttype-op1" 
+                                    type="checkbox" 
+                                    value="Corporation income tax (RC)" 
+                                    data-prefix="RC"
+                                    data-toggle="s1biz-subgroup-RC">
+                                 <label for="s1biz-accounttype-op1"></label><br>
+                              </div>
+
+                              <div id="s1biz-subgroup-RC" class="sub-group hidden">
+                                 <label for="s1biz-BN9-RC" class="required-label">Corporation business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-RC" name="s1biz-BN9-RC" maxlength="9" placeholder="123456789">
+                                    <div class="static">RC</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-RC" name="s1biz-BN4-RC" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-RC" name="s1biz-bnfreeform-RC">
+                              </div>
+
+                              <!-- RT -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-rt" 
+                                    id="s1biz-accounttype-op2" 
+                                    type="checkbox" 
+                                    value="GST/HST (RT)" 
+                                    data-prefix="RT"
+                                    data-toggle="s1biz-subgroup-RT">
+                                 <label for="s1biz-accounttype-op2"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-RT" class="sub-group hidden">
+                                 <label for="s1biz-BN9-RT" class="required-label">GST/HST business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-RT" name="s1biz-BN9-RT" maxlength="9" placeholder="123456789">
+                                    <div class="static">RT</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-RT" name="s1biz-BN4-RT" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-RT" name="s1biz-bnfreeform-RT">
+                              </div>
+
+                              <!-- RP -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-rp" 
+                                    id="s1biz-accounttype-op3" 
+                                    type="checkbox" 
+                                    value="Payroll (RP)" 
+                                    data-prefix="RP"
+                                    data-toggle="s1biz-subgroup-RP">
+                                 <label for="s1biz-accounttype-op3"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-RP" class="sub-group hidden">
+                                 <label for="s1biz-BN9-RP" class="required-label">Payroll business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-RP" name="s1biz-BN9-RP" maxlength="9" placeholder="123456789">
+                                    <div class="static">RP</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-RP" name="s1biz-BN4-RP" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-RP" name="s1biz-bnfreeform-RP">
+                              </div>
+
+                              <!-- ZA -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-za" 
+                                    id="s1biz-accounttype-op4" 
+                                    type="checkbox" 
+                                    value="Air Travellers Security Charge (ZA)" 
+                                    data-prefix="ZA"
+                                    data-toggle="s1biz-subgroup-ZA">
+                                 <label for="s1biz-accounttype-op4"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-ZA" class="sub-group hidden">
+                                 <label for="s1biz-BN9-ZA" class="required-label">Air Travellers Security Charge business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-ZA" name="s1biz-BN9-ZA" maxlength="9" placeholder="123456789">
+                                    <div class="static">ZA</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-ZA" name="s1biz-BN4-ZA" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-ZA" name="s1biz-bnfreeform-ZA">
+                              </div>
+
+                              <!-- RD -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-rd" 
+                                    id="s1biz-accounttype-op5" 
+                                    type="checkbox" 
+                                    value="Excise Duty (RD)" 
+                                    data-prefix="RD"
+                                    data-toggle="s1biz-subgroup-RD">
+                                 <label for="s1biz-accounttype-op5"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-RD" class="sub-group hidden">
+                                 <label for="s1biz-BN9-RD" class="required-label">Excise Duty business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-RD" name="s1biz-BN9-RD" maxlength="9" placeholder="123456789">
+                                    <div class="static">RD</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-RD" name="s1biz-BN4-RD" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-RD" name="s1biz-bnfreeform-RD">
+                              </div>
+
+                              <!-- RN -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-rn" 
+                                    id="s1biz-accounttype-op6" 
+                                    type="checkbox" 
+                                    value="Excise Tax on Insurance Premiums (RN)" 
+                                    data-prefix="RN"
+                                    data-toggle="s1biz-subgroup-RN">
+                                 <label for="s1biz-accounttype-op6"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-RN" class="sub-group hidden">
+                                 <label for="s1biz-BN9-RN" class="required-label">Excise Tax on Insurance Premiums business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-RN" name="s1biz-BN9-RN" maxlength="9" placeholder="123456789">
+                                    <div class="static">RN</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-RN" name="s1biz-BN4-RN" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-RN" name="s1biz-bnfreeform-RN">
+                              </div>
+
+                              <!-- CT -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-ct" 
+                                    id="s1biz-accounttype-op7" 
+                                    type="checkbox" 
+                                    value="Fuel Charge (CT)" 
+                                    data-prefix="CT"
+                                    data-toggle="s1biz-subgroup-CT">
+                                 <label for="s1biz-accounttype-op7"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-CT" class="sub-group hidden">
+                                 <label for="s1biz-BN9-CT" class="required-label">Fuel Charge business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-CT" name="s1biz-BN9-CT" maxlength="9" placeholder="123456789">
+                                    <div class="static">CT</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-CT" name="s1biz-BN4-CT" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-CT" name="s1biz-bnfreeform-CT">
+                              </div>
+
+                              <!-- LT -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-lt" 
+                                    id="s1biz-accounttype-op8" 
+                                    type="checkbox" 
+                                    value="Luxury Tax (LT)" 
+                                    data-prefix="LT"
+                                    data-toggle="s1biz-subgroup-LT">
+                                 <label for="s1biz-accounttype-op8"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-LT" class="sub-group hidden">
+                                 <label for="s1biz-BN9-LT" class="required-label">Luxury Tax business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-LT" name="s1biz-BN9-LT" maxlength="9" placeholder="123456789">
+                                    <div class="static">LT</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-LT" name="s1biz-BN4-LT" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-LT" name="s1biz-bnfreeform-LT">
+                              </div>
+
+                              <!-- RU -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-ru" 
+                                    id="s1biz-accounttype-op9" 
+                                    type="checkbox" 
+                                    value="Underused Housing Tax (RU)" 
+                                    data-prefix="RU"
+                                    data-toggle="s1biz-subgroup-RU">
+                                 <label for="s1biz-accounttype-op9"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-RU" class="sub-group hidden">
+                                 <label for="s1biz-BN9-RU" class="required-label">Underused Housing Tax business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-RU" name="s1biz-BN9-RU" maxlength="9" placeholder="123456789">
+                                    <div class="static">RU</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-RU" name="s1biz-BN4-RU" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-RU" name="s1biz-bnfreeform-RU">
+                              </div>
+
+                              <!-- Third-party -->
+                             <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-third" 
+                                    id="s1biz-accounttype-op10" 
+                                    type="checkbox" 
+                                    value="Third-party assessment (T779 / GST259)" 
+                                    data-toggle="s1biz-subgroup-thirdparty">
+                                 <label for="s1biz-accounttype-op10"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-thirdparty" class="sub-group hidden">
+                                 <label class="required-label" for="s1-biz-thirdpartyref">Third-party reference number</label>
+                                 <input type="text" class="half-width" name="thirdpartyref" id="s1-biz-thirdpartyref">
+                              </div>
+
+                              <!-- PT / RC -->
+                              <div class="group">
+                                 <input 
+                                    name="s1biz-accounttype-pt" 
+                                    id="s1biz-accounttype-op11" 
+                                    type="checkbox" 
+                                    value="Global minimum tax (PT / RC)" 
+                                    data-prefix="PT/RC"
+                                    data-toggle="s1biz-subgroup-PT">
+                                 <label for="s1biz-accounttype-op11"></label>
+                              </div>
+
+                              <div id="s1biz-subgroup-PT" class="sub-group hidden">
+                                 <label for="s1biz-BN9-PT" class="required-label">Global minimum tax business number</label>
+                                 <div class="input-wrapper ml-16px">
+                                    <input class="BN9" type="text" id="s1biz-BN9-PT" name="s1biz-BN9-PT" maxlength="9" placeholder="123456789">
+                                    <div class="static">PT/RC</div>
+                                    <input class="BN4" type="text" id="s1biz-BN4-PT" name="s1biz-BN4-PT" maxlength="4" placeholder="1234">
+                                 </div>
+                                 <input type="text" class="hidden" id="s1biz-bnfreeform-PT" name="s1biz-bnfreeform-PT">
+                              </div>
+
+                           </div>
+                        </fieldset>
                         <!-- <select id="s1biz-accountype" name="s1biz-accountype" data-toggle="s1biz-bn-fieldset">
                            <option value="" selected>(Select)</option>
                            <option value="RC" data-name="Corporation income tax">Corporation income tax (RC)</option>
@@ -460,20 +608,7 @@
                            <option value="thirdparty">Third-party assessment (T779 / GST259)</option>
                            <option value="PT">Global minimum tax (PT / RC)</option>
                         </select> -->
-                        <fieldset id="s1-biz-thirdpartyref-fieldset" class="hidden">
-                           <label class="required-label" for="s1-biz-thirdpartyref">Third-party reference number</label>
-                           <input type="text" class="half-width" name="thirdpartyref" id="s1-biz-thirdpartyref">
-                        </fieldset>
-                        <fieldset id="s1biz-bn-fieldset" class="hidden">
-                           <label for="s1biz-bn9" class="required-label">Business number</label>
-                          
-                           <div class="input-wrapper ml-16px" id="s1biz-bn-wrapper">
-                              <input class="BN9" type="text" id="s1biz-BN9" name="s1biz-BN9" maxlength="9" placeholder="123456789">
-                              <div class="static"></div>
-                              <input class="BN4" type="text" id="s1biz-BN4" name="s1biz-BN4" maxlength="4" placeholder="1234">
-                           </div>
-                           <input type="text" class="hidden" id="s1biz-bnfreeform" name="s1biz-bn9">
-                        </fieldset>
+                       
                        
                        
                      </div>
