@@ -141,6 +141,11 @@ class Stepper {
                 if (bizSummary.length) {
                     dataObj["s1biz-accounttype"] = bizSummary;
                 }
+            // Remove individual account-type checkbox entries and raw BN parts
+            Object.keys(dataObj).forEach(k => {
+                if (/^s1biz-(BN9|BN4|bnfreeform)/i.test(k)) delete dataObj[k];
+                if (/^s1biz-accounttype-/i.test(k)) delete dataObj[k];
+            });
         }
         // Step 2 special: include tax lines table
         if (stepNum === 2) {
@@ -183,7 +188,8 @@ class Stepper {
                 }
             });
 
-            return summary.join("<br>");
+                // Use comma+space to separate multiple account entries in the review
+                return summary.join(", ");
     }
     loadStoredData() {
         this.steps.forEach((step, index) => {
@@ -284,11 +290,11 @@ class Step1Handler {
         const mailingLabel = this.mailingAddressFieldset.querySelector("label").childNodes[1];
 
 
-        if (this.userFlow.value === 2) {
+        if (this.userFlow === "2") {
             telLabel.textContent = "Contact telephone number";
             this.contactNameFieldset.classList.remove("hidden");
             mailingLabel.textContent = "Business address";
-        } else if (this.userFlow.value === 3) {
+        } else if (this.userFlow === "3") {
 
             telLabel.textContent = "Telephone number";
             this.contactNameFieldset.classList.add("hidden");
@@ -298,7 +304,6 @@ class Step1Handler {
             telLabel.textContent = "Telephone number";
             this.contactNameFieldset.classList.add("hidden");
             mailingLabel.textContent = "Mailing address";
-
 
         }
     }
@@ -469,7 +474,7 @@ class Step2Handler {
             noticeDate: noticeDate,
             taxYear: taxYear
         };
-        ``
+        
     }
 
 
@@ -626,12 +631,27 @@ class Step3Handler {
             let data = DataManager.getData(storageKey);
             if (!data) return;
 
+            // Clean out any raw business-number or per-checkbox account-type fields that may have been saved earlier
+            let cleaned = false;
+            Object.keys(data).forEach(k => {
+                if (/^s1biz-(BN9|BN4|bnfreeform|accounttype-)/i.test(k)) {
+                    delete data[k];
+                    cleaned = true;
+                }
+            });
+            if (cleaned) {
+                DataManager.saveData(storageKey, data);
+            }
+
             // Replace field names with question labels
             let formattedData = {};
             let subTableData = null; // Placeholder for subtable
 
 
             Object.keys(data).forEach(key => {
+                // Skip raw business-number and per-checkbox account-type fields so review only shows the amalgamated summary
+                if (/^s1biz-(BN9|BN4|bnfreeform|accounttype-)/i.test(key)) return;
+
                 let value = data[key];
                 if (value == null) return;
 
