@@ -256,6 +256,9 @@ header div img {
 .inline-flex {
   display:inline-flex;
 }
+.align-center {
+  align-items:center;
+}
 .uppercase {
   text-transform:uppercase;
 }

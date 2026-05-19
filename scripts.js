@@ -572,7 +572,8 @@ class Step2Handler {
         this.taxYearCount++;
 
         const row = document.createElement('div');
-        row.classList.add('tax-year-row', 'inline-flex', 'align-center', 'mb-8px');
+        row.classList.add('tax-year-row', 'inline-flex', 'align-center');
+        row.style.alignItems = 'center';
 
         const newInput = document.createElement('input');
         newInput.type = 'number';
@@ -598,7 +599,8 @@ class Step2Handler {
         this.lineNumberCount++;
 
         const row = document.createElement('div');
-        row.classList.add('line-number-row', 'inline-flex', 'align-center', 'mb-8px');
+        row.classList.add('line-number-row', 'inline-flex', 'align-center');
+        row.style.alignItems = 'center';
 
         const newInput = document.createElement('input');
         newInput.type = 'text';
