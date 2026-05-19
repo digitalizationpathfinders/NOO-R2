@@ -1,3 +1,26 @@
+/**
+ * Lightweight DOM helpers to keep the rest of the script concise and
+ * content-agnostic. Use `$` and `$all` instead of repeated
+ * `document.querySelector` calls. Keep helpers small and side-effect free.
+ */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $all = (sel, root = document) => Array.from((root || document).querySelectorAll(sel));
+const on = (el, evt, fn) => el?.addEventListener(evt, fn);
+const createEl = (tag, props = {}, children = []) => {
+    const e = document.createElement(tag);
+    Object.keys(props).forEach(k => {
+        if (k in e) e[k] = props[k];
+        else e.setAttribute(k, props[k]);
+    });
+    children.forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
+    return e;
+};
+
+/**
+ * Stepper: manages step navigation and delegates step-specific logic to
+ * handler classes. Keep the Stepper focused on navigation, state
+ * management, and persistence; move UI-specific behaviour into handlers.
+ */
 class Stepper {
     constructor(stepSelector) {
         this.steps = Array.from(document.querySelectorAll(stepSelector));
@@ -95,67 +118,81 @@ class Stepper {
         }
     }
 
+    /**
+     * Collect form inputs for a step, normalize arrays and checkbox groups,
+     * and return a plain object ready for persistence.
+     */
     storeData(stepNum) {
         const stepForm = document.querySelector(`#step-${stepNum}-form`);
         let dataObj = {};
-        const checkArr = [];
 
         if (stepForm) {
-            const allInputs = stepForm.querySelectorAll("input, select, textarea");
-            allInputs.forEach(input => {
-                if (input.closest('.hidden')) return;
-
-                const name = input.name;
-                if (!name) return;
-
-                if (input.dataset.array === "true") {
-                    if (!dataObj[name]) dataObj[name] = [];
-                    if (input.value !== "")
-                        dataObj[name].push(input.value);
-                } else {
-                    if (input.type === "radio") {
-                        if (input.checked) {
-                            dataObj[input.name] = input.value;
-                        }
-                    } else if (input.type === "checkbox") {
-                        if (input.checked) {
-                            checkArr.push(input.value);
-                            dataObj[input.name] = checkArr;
-                        }
-                    } else {
-                        dataObj[input.name] = input.value;
-                    }
-                }
-
-            });
-
-            Object.keys(dataObj).forEach(k => {
-                if (Array.isArray(dataObj[k]) && dataObj[k].length === 0) {
-                    delete dataObj[k];
-                }
-            });
-
+            dataObj = this.parseFormInputs(stepForm);
+            this.removeEmptyArrays(dataObj);
         }
-        if(stepNum === 1){
+
+        if (stepNum === 1) {
             const bizSummary = this.buildBusinessNumberSummary(stepForm);
-                if (bizSummary.length) {
-                    dataObj["s1biz-accounttype"] = bizSummary;
-                }
-            // Remove individual account-type checkbox entries and raw BN parts
-            Object.keys(dataObj).forEach(k => {
-                if (/^s1biz-(BN9|BN4|bnfreeform)/i.test(k)) delete dataObj[k];
-                if (/^s1biz-accounttype-/i.test(k)) delete dataObj[k];
-            });
+            if (bizSummary.length) dataObj["s1biz-accounttype"] = bizSummary;
+            this.removeBizRawFields(dataObj);
         }
-        // Step 2 special: include tax lines table
-        if (stepNum === 2) {
-            if (this.stepHandlers[2]?.taxLinesTable) {
-                dataObj["notices"] = this.stepHandlers[2].noticesTables.rows;
-            }
 
+        // Step 2: include notices table if present
+        if (stepNum === 2) {
+            if (this.stepHandlers[2]?.noticesTable) {
+                dataObj["notices"] = this.stepHandlers[2].noticesTable.rows;
+            }
         }
 
         DataManager.saveData(`stepData_${stepNum}`, dataObj);
+    }
+
+    // --- Small helper methods to keep `storeData` readable ---
+    parseFormInputs(stepForm) {
+        const dataObj = {};
+        const allInputs = stepForm.querySelectorAll("input, select, textarea");
+
+        allInputs.forEach(input => {
+            if (input.closest('.hidden')) return;
+            const name = input.name;
+            if (!name) return;
+
+            // Arrays: elements marked data-array (multiple tax years, etc.)
+            if (input.dataset.array === "true") {
+                if (!dataObj[name]) dataObj[name] = [];
+                if (input.value !== "") dataObj[name].push(input.value);
+                return;
+            }
+
+            if (input.type === "radio") {
+                if (input.checked) dataObj[name] = input.value;
+                return;
+            }
+
+            if (input.type === "checkbox") {
+                if (!dataObj[name]) dataObj[name] = [];
+                if (input.checked) dataObj[name].push(input.value);
+                return;
+            }
+
+            // Default inputs
+            dataObj[name] = input.value;
+        });
+
+        return dataObj;
+    }
+
+    removeEmptyArrays(obj) {
+        Object.keys(obj).forEach(k => {
+            if (Array.isArray(obj[k]) && obj[k].length === 0) delete obj[k];
+        });
+    }
+
+    removeBizRawFields(obj) {
+        Object.keys(obj).forEach(k => {
+            if (/^s1biz-(BN9|BN4|bnfreeform)/i.test(k)) delete obj[k];
+            if (/^s1biz-accounttype-/i.test(k)) delete obj[k];
+        });
     }
 
     buildBusinessNumberSummary(stepForm) {
@@ -252,12 +289,6 @@ class Step1Handler {
         this.businessAccountFieldset.addEventListener("change", () => {
             const bizTypes = document.querySelectorAll('input[name="s1biz-accounttype"]:checked');
 
-            // bizTypes.forEach(checkbox => {
-            //     console.log(checkbox)
-            // });
-
-           // this.updateAccountField(bizTypes);
-           // this.thirdPartyDisplay(bizTypes);
         });
         this.userTypeFieldset = document.getElementById("s1q7-fieldset");
         this.userTypeFieldset.addEventListener("change", () => {
@@ -271,9 +302,6 @@ class Step1Handler {
 
         this.accountFieldset = document.getElementById("s1biz-bn-fieldset");
 
-       // this.bn9Field = document.getElementById("s1biz-bn-wrapper");
-        //this.bnFreeFormField = document.getElementById("s1biz-bnfreeform")
-        //this.prefixDiv = this.accountFieldset.querySelector(".static");
 
         this.telephoneNumFieldset = document.getElementById("telephone-fieldset");
         this.mailingAddressFieldset = document.getElementById("mailing-fieldset");
@@ -281,8 +309,7 @@ class Step1Handler {
 
 
         this.indThirdPartyNumber = document.getElementById("s1-ind-thirdpartyref-fieldset");
-        //this.bizThirdPartyNumber = document.getElementById("s1-biz-thirdpartyref-fieldset");
-
+      
     }
 
     updateAddressFieldLabels() {
@@ -319,53 +346,6 @@ class Step1Handler {
 
     }
 
-    // thirdPartyDisplay(selectedValues) {
-        
-    //     if (selectedValues === "thirdparty") {
-    //         console.log("hello")
-    //         if (this.userFlow === 1) {
-    //             this.indThirdPartyNumber.classList.remove("hidden");
-    //             this.bizThirdPartyNumber.classList.add("hidden");
-    //             this.bnFreeFormField.classList.add("hidden");
-    //             this.bn9Field.classList.add("hidden");
-    //         } else {
-    //             this.bizThirdPartyNumber.classList.remove("hidden");
-    //             this.indThirdPartyNumber.classList.add("hidden");
-    //             this.bnFreeFormField.classList.remove("hidden");
-    //             this.bn9Field.classList.add("hidden");
-
-
-    //         }
-    //     } else {
-    //         this.indThirdPartyNumber.classList.add("hidden");
-    //         this.bizThirdPartyNumber.classList.add("hidden");
-    //         this.bnFreeFormField.classList.add("hidden");
-    //         this.bn9Field.classList.remove("hidden");
-
-    //     }
-
-    // }
-    // updateAccountField(selectedValue) {
-
-    //     if (selectedValue !== "thirdparty") {
-    //         // Update the prefix div
-
-    //         //const bizPrefix = selectedValue.getAttribute("data-prefix");
-    //         this.prefixDiv.textContent = bizPrefix || "";
-
-    //         // Show/hide the fieldset
-    //         if (selectedValue) {
-    //             this.accountFieldset.classList.remove("hidden");
-    //         } else {
-    //             this.accountFieldset.classList.add("hidden");
-    //         }
-    //     } else {
-
-    //     }
-
-
-
-    // }
 }
 class Step2Handler {
     constructor() {
@@ -377,17 +357,45 @@ class Step2Handler {
         this.noticesTable = new TableObj("tb-add-notice");
         this.firstNoticeAdded = false;
 
-
-        this.renderInitialView();
+        this.largeCorpQuestion = document.getElementById("s2q0-fieldset");
         this.setupListeners();
 
 
         this.noticeTypeSelection = document.querySelectorAll('input[name="s2q1"]');
         this.noticeDateField = document.getElementById("s2-noticedate-field");
-        //this.noticeDateLabel = this.noticeDateField.parentElement.querySelector('label');
+
         this.extensionFieldset = document.getElementById("s2-timeextension-fieldset");
 
+        // fieldset that contains the notices table
+        this.noticesFieldset = document.getElementById("s2q1-fieldset");
+
+        // container inside time extension fieldset that holds the explanatory text
+        this.timeExtensionTextContainer = this.extensionFieldset ? this.extensionFieldset.querySelector('div') : null;
+
         this.userType = this.getUserType();
+
+        // id of the Corporation account-type checkbox in Step 1
+        this.corpCheckboxId = 's1biz-accounttype-op1';
+
+        // react to saved Step 1 changes (DataManager.saveData triggers 'dataUpdated')
+        document.addEventListener('dataUpdated', (e) => {
+            if (e?.detail?.key === 'stepData_1') {
+                this.userType = this.getUserType();
+                this.renderLargeCorpQuestion();
+                this.updateNoticesHeader();
+            }
+        });
+
+        // react to direct checkbox toggles in Step 1 (live)
+        const corpCheckboxEl = document.getElementById(this.corpCheckboxId);
+        if (corpCheckboxEl) {
+            corpCheckboxEl.addEventListener('change', () => {
+                this.userType = this.getUserType();
+              
+                this.renderLargeCorpQuestion();
+                this.updateNoticesHeader();
+            });
+        }
 
         this.taxYearsFieldset = document.getElementById("tax-years-fieldset");
         this.fiscalFieldset = document.getElementById("fiscal-period-fieldset");
@@ -415,12 +423,6 @@ class Step2Handler {
 
 
     }
-    renderInitialView() {
-
-
-
-
-    }
 
     setupListeners() {
         document.addEventListener("lightboxSubmitted", (event) => {
@@ -434,8 +436,6 @@ class Step2Handler {
                 this.lightbox.setEditIndex(e.detail.index);
                 this.lightbox.populateForm(e.detail.rowData);
                 this.lightbox.openLightbox();
-
-
 
             }
         });
@@ -506,11 +506,52 @@ class Step2Handler {
         };
 
         this.userType = normalized[step1?.s1q7];
+        return this.userType;
     }
     onActivate() {
         this.getUserType();
         this.setYearOrFiscalField();
+
+        // render or remove large-corporation question before the notices table
+        this.renderLargeCorpQuestion();
+        // update notices table header label (Tax year → Reporting period for business)
+        this.updateNoticesHeader();
+        
     }
+
+    renderLargeCorpQuestion() {
+     
+        // Check live checkbox state
+        const checkboxSelected = !!document.getElementById(this.corpCheckboxId)?.checked;
+
+        // Check saved summary (if present)
+        const saved = DataManager.getData('stepData_1')?.['s1biz-accounttype'];
+        const summaryHasCorp = typeof saved === 'string' && /Corporation/i.test(saved);
+
+        const shouldShow = this.userType === 'Business' && (checkboxSelected || summaryHasCorp);
+
+        if (shouldShow) {
+            this.largeCorpQuestion.classList.remove('hidden');
+        } else {
+            this.largeCorpQuestion.classList.add('hidden');
+            // clear any selected values when hiding
+            const inputs = this.largeCorpQuestion.querySelectorAll('input');
+            inputs.forEach(i => {
+                if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
+                else i.value = '';
+            });
+        }
+    }
+
+    updateNoticesHeader() {
+        const table = document.getElementById('tb-add-notice');
+        if (!table) return;
+        const ths = table.querySelectorAll('thead th');
+        if (!ths || ths.length < 2) return;
+        ths[1].textContent = this.userType === 'Business' ? 'Reporting period' : 'Tax year';
+    }
+
+
 
 
     setYearOrFiscalField() {
@@ -527,33 +568,56 @@ class Step2Handler {
     }
 
     addTaxYearInput() {
+        if (!this.taxYearsContainer) return;
         this.taxYearCount++;
-        const newInput = document.createElement("input");
-        newInput.type = "number";
-        newInput.id = "s2q3-field";
-        newInput.name = "s2q3";
-        newInput.min = "1900"
-        newInput.max = "2100"
-        newInput.dataset.array = "true";
-        newInput.classList.add("tax-year-input", "quarter-width");
-        this.taxYearsContainer.appendChild(newInput);
 
+        const row = document.createElement('div');
+        row.classList.add('tax-year-row', 'inline-flex', 'align-center', 'mb-8px');
 
+        const newInput = document.createElement('input');
+        newInput.type = 'number';
+        newInput.name = 's2q3';
+        newInput.min = '1900';
+        newInput.max = '2100';
+        newInput.dataset.array = 'true';
+        newInput.classList.add('tax-year-input', 'quarter-width');
+       
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.classList.add('btn', 'btn-tertiary', 'ml-8px');
+        deleteButton.innerHTML = '<span class="material-icons">close</span> Delete';
+        deleteButton.addEventListener('click', () => {
+            row.remove();
+        });
+
+        row.appendChild(newInput);
+        row.appendChild(deleteButton);
+        this.taxYearsContainer.appendChild(row);
     }
     addLineNumberInput() {
         this.lineNumberCount++;
-        const newInput = document.createElement("input");
-        newInput.type = "text";
-        newInput.id = "s2q4-field";
-        newInput.name = "s2q4";
 
-        newInput.dataset.array = "true";
-        newInput.classList.add("linenumber-input", "half-width");
-        this.lineNumbersContainer.appendChild(newInput);
+        const row = document.createElement('div');
+        row.classList.add('line-number-row', 'inline-flex', 'align-center', 'mb-8px');
 
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.name = 's2q4';
+        newInput.dataset.array = 'true';
+        newInput.classList.add('linenumber-input', 'half-width');
+       
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.classList.add('btn', 'btn-tertiary', 'ml-8px');
+        deleteButton.innerHTML = '<span class="material-icons">close</span> Delete';
+        deleteButton.addEventListener('click', () => {
+            row.remove();
+        });
 
+        row.appendChild(newInput);
+        row.appendChild(deleteButton);
+        this.lineNumbersContainer.appendChild(row);
     }
-
 
 
     handleNoticeDateChange() {
