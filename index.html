@@ -304,31 +304,31 @@
                            Select the subject you are objecting to.</label>
                            <div class="checkbox-group">
                               <div class="group">
-                                 <input id="s1ind-taxtype-op1" type="checkbox" value="Income tax">
+                                 <input id="s1ind-taxtype-op1" name="s1ind-taxtype" type="checkbox" value="Income tax">
                                  <label for="s1ind-taxtype-op1"></label>
                               </div>
                               <div class="group">
-                                 <input id="s1ind-taxtype-op2" type="checkbox" value="GST/HST credit or other provincial/territorial programs">
+                                 <input id="s1ind-taxtype-op2" name="s1ind-taxtype" type="checkbox" value="GST/HST credit or other provincial/territorial programs">
                                  <label for="s1ind-taxtype-op2"></label>
                                  </div>
                               <div class="group">
-                                 <input id="s1ind-taxtype-op3" type="checkbox" value="Canada Child Benefit (CCB) or other provincial/territorial programs">
+                                 <input id="s1ind-taxtype-op3" name="s1ind-taxtype" type="checkbox" value="Canada Child Benefit (CCB) or other provincial/territorial programs">
                                  <label for="s1ind-taxtype-op3"></label>
                                </div>
                               <div class="group">
-                               <input id="s1ind-taxtype-op4" type="checkbox" value="Disability Tax Credit (DTC)">
+                               <input id="s1ind-taxtype-op4" name="s1ind-taxtype" type="checkbox" value="Disability Tax Credit (DTC)">
                                <label for="s1ind-taxtype-op4"></label>
                               </div>
                               <div class="group">
-                                 <input id="s1ind-taxtype-op5" type="checkbox" value="First Home Savings Account (FHSA) assessment notice">
+                                 <input id="s1ind-taxtype-op5" name="s1ind-taxtype" type="checkbox" value="First Home Savings Account (FHSA)">
                                  <label for="s1ind-taxtype-op5"></label>
                               </div>                              
                               <div class="group">
-                               <input id="s1ind-taxtype-op6" type="checkbox" value="Tax-Free Savings Account (TFSA)" data-toggle="alert-tfsa">
+                               <input id="s1ind-taxtype-op6" name="s1ind-taxtype" type="checkbox" value="Tax Free Savings Account (TFSA)" data-toggle="alert-tfsa">
                                <label for="s1ind-taxtype-op6"></label>
                               </div>
                               <div class="group">
-                               <input id="s1ind-taxtype-op7" type="checkbox" value="Third-party assessment (T779 / GST259)" data-toggle="s1ind-subgroup-thirdparty">
+                               <input id="s1ind-taxtype-op7" name="s1ind-taxtype" type="checkbox" value="Third-party assessment (T779 / GST259)" data-toggle="s1ind-subgroup-thirdparty">
                                <label for="s1ind-taxtype-op7"></label>
                               </div>
                               
@@ -844,7 +844,7 @@
                               <input class="quarter-width" type="text" id="s1-unit" name="s1-unit">
                            </fieldset>
                            <fieldset>
-                              <label class="required-label" for="s1-unit">Province/territory</label>
+                              <label class="required-label" for="s1-prov">Province/territory</label>
                               <select id="s1-prov" name="s1-prov">
                                  <option value="" selected>(Select)</option>
                                  <option value="Alberta">Alberta</option>
@@ -863,7 +863,7 @@
                               </select>
                            </fieldset>
                            <fieldset>
-                              <label class="required-label" for="s1-postalcode">City</label>
+                              <label class="required-label" for="s1-city">City</label>
                               <input type="text" id="s1-city" name="s1-city">
                            </fieldset>
                            <fieldset>
@@ -993,8 +993,8 @@
                      <div id="s2-date-fields">
                         <fieldset id="tax-years-fieldset" class="hidden">
                            <label for="s2q3-field" class="required-label">Tax year(s)</label>
-                           <div id="tax-years-container" class="vertical-stack ml-16px">
-                              <input class="quarter-width" id="s2q3-field" type="number" min="1900" max="2100" name="s2q3" data-array="true">
+                           <div id="tax-years-container" class="vertical-stack">
+                              <input class="quarter-width" id="s2q3-field" type="text"name="s2q3" data-array="true">
                            </div>
                            <button class="btn ml-16px btn-secondary" type="button" id="add-tax-year-btn"><span class="material-icons">add_circle</span> Add another tax year</button>
                         </fieldset>

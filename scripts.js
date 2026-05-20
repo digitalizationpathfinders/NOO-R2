@@ -385,7 +385,7 @@ class Step2Handler {
         if (this.taxYearsContainer) {
             this.taxYearListBuilder = new ListBuilder({
                 container: this.taxYearsContainer,
-                inputType: 'number',
+                inputType: 'text',
                 inputName: 's2q3',
                 inputClasses: ['tax-year-input', 'quarter-width'],
                 rowClasses: ['tax-year-row', 'inline-flex', 'align-center'],
@@ -548,9 +548,6 @@ class Step2Handler {
         ths[1].textContent = this.userType === 'Business' ? 'Reporting period' : 'Tax year';
     }
 
-
-
-
     setYearOrFiscalField() {
 
         if (!this.userType) return;
@@ -564,9 +561,6 @@ class Step2Handler {
             this.fiscalFieldset.classList.add("hidden");
         }
     }
-
-    // Dynamic list inputs are handled by ListBuilder instances
-
 
     handleNoticeDateChange() {
         const dateValue = this.noticeDateField.value;
@@ -589,12 +583,7 @@ class Step2Handler {
 
 
         return diffDays > 90;
-
     }
-
-
-
-
 }
 
 class Step3Handler {
@@ -667,6 +656,12 @@ class Step3Handler {
                 let value = data[key];
                 if (value == null) return;
 
+                // If a field is stored as an array (multiple checkboxes/inputs),
+                // join with ", " so the review shows a readable list with spaces.
+                if (Array.isArray(value)) {
+                    value = value.join(", ");
+                }
+
                 if (key === "notices") {
                     subTableData = {
                         title: "Notices you added",
@@ -726,28 +721,63 @@ class Step3Handler {
 
     getLabelForInput(name) {
         let label = "";
+        // Prefer the fieldset legend for grouped inputs (checkbox/radio groups).
+        const fieldElement = document.querySelector(`fieldset [name="${name}"]`);
+        if (fieldElement) {
+            const fs = fieldElement.closest("fieldset");
 
-        // Handle standard <label for="...">
-        const input = document.querySelector(`[name="${name}"]`);
-        if (input) {
-            const labelElement = document.querySelector(`label[for="${input.id}"]`);
-            if (labelElement) {
-                const cloned = labelElement.cloneNode(true);
-                // Remove help links/icons and asterisks
-                cloned.querySelectorAll('a, span, .label-ast').forEach(el => el.remove());
-                label = cloned.textContent.trim();
+            // Determine if this "name" represents a group (multiple inputs with same name)
+            const sameNameCount = fs.querySelectorAll(`[name="${name}"]`).length;
+
+            if (sameNameCount > 1) {
+                // It's a group — prefer <legend> or a standalone group <label>
+                const legend = fs.querySelector("legend");
+                if (legend) {
+                    const cloned = legend.cloneNode(true);
+                    cloned.querySelectorAll('a, span, .label-ast').forEach(el => el.remove());
+                    label = cloned.textContent.trim();
+                } else {
+                    const candidateLabels = Array.from(fs.querySelectorAll('label[for]'));
+                    for (const lab of candidateLabels) {
+                        const forVal = lab.getAttribute('for');
+                        if (!fs.querySelector(`#${CSS.escape(forVal)}`)) {
+                            const cloned = lab.cloneNode(true);
+                            cloned.querySelectorAll('a, span, .label-ast').forEach(el => el.remove());
+                            label = cloned.textContent.trim();
+                            break;
+                        }
+                    }
+                }
             }
+            // If sameNameCount === 1 we won't use the group label — fallthrough to
+            // single-input label handling below so individual inputs (like
+            // thirdpartyref) keep their own labels.
         }
 
-        // Handle radio/checkbox inside a <fieldset>
-        const fieldset = document.querySelector(`fieldset [name="${name}"]`);
-        if (fieldset) {
-            const legend = fieldset.closest("fieldset").querySelector("legend");
-            if (legend) {
-                const cloned = legend.cloneNode(true);
-                // Remove help links/icons and asterisks
-                cloned.querySelectorAll('a, span, .label-ast').forEach(el => el.remove());
-                label = cloned.textContent.trim();
+        // Fallback: handle a standard <label for="..."> for single inputs
+        if (!label) {
+            const input = document.querySelector(`[name="${name}"]`);
+            if (input) {
+                const labelElement = document.querySelector(`label[for="${input.id}"]`);
+                if (labelElement) {
+                    const cloned = labelElement.cloneNode(true);
+                    // Remove help links/icons and asterisks
+                    cloned.querySelectorAll('a, span, .label-ast').forEach(el => el.remove());
+                    label = cloned.textContent.trim();
+                }
+                // If there's no direct <label for="id"> (common when international
+                // and domestic share a label), attempt to derive a base id by
+                // stripping a known suffix like 'international' and look for a
+                // label for that base id (e.g., s1-mailinginternational -> s1-mailing).
+                if (!label && input.id && input.id.includes('international')) {
+                    const baseId = input.id.replace('international', '');
+                    const baseLabel = document.querySelector(`label[for="${baseId}"]`);
+                    if (baseLabel) {
+                        const clonedBase = baseLabel.cloneNode(true);
+                        clonedBase.querySelectorAll('a, span, .label-ast').forEach(el => el.remove());
+                        label = clonedBase.textContent.trim();
+                    }
+                }
             }
         }
 
