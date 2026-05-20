@@ -29,7 +29,7 @@
       </header>
       <main class="stepper">
          <h1>Notice of objection</h1>
-         <section class="step" id="step-0">
+         <section class="step active" id="step-0">
             <div class="step-header">
                <div class="step-number">
                   <span class="step-icon material-icons">check</span>
@@ -123,7 +123,7 @@
                            <div class="line"></div>
                         </div>
                         <div class="alert-content">
-                          Filing an objection may not be the best solution for your situation. You may be looking to change your tax return. To learn how to do so for an individual tax account, go to <a href="#">How to change your return.</a> <a href="#">To learn how to do this for a business account, go to My Business Account</a>.
+                          Filing an objection may not be the best solution for your situation. You may be looking to change your tax return. To learn how to do so for an individual tax account, go to <a href="#">How to change your return.</a> To learn how to do this for a business account, go to <a href="#">My Business Account</a>.
                         </div>
                      </div>
                      <div class="alert hidden" id="alert-misdirect-cpp">
@@ -145,7 +145,7 @@
                </div>
             </div>
          </section>
-         <section class="step active" id="step-1">
+         <section class="step" id="step-1">
             <div class="step-header">
                <div class="step-number">
                   <span class="step-icon material-icons">check</span>
@@ -339,6 +339,7 @@
 
 
                            </div>
+                           <br>
                            <div class="alert hidden" id="alert-tfsa">
                               <div class="alert-warning">
                                  <div class="line"></div>
@@ -614,23 +615,7 @@
 
                            </div>
                         </fieldset>
-                        <!-- <select id="s1biz-accountype" name="s1biz-accountype" data-toggle="s1biz-bn-fieldset">
-                           <option value="" selected>(Select)</option>
-                           <option value="RC" data-name="Corporation income tax">Corporation income tax (RC)</option>
-                           <option value="RT" data-name="GST/HST ">GST/HST (RT)</option>
-                           <option value="RP" data-name="Payroll">Payroll (RP)</option>
-                           <option value="ZA" data-name="Air Travellers Security Charge">Air Travellers Security Charge (ZA)</option>
-                           <option value="RD" data-name="Excise Duty">Excise Duty (RD)</option>
-                           <option value="RN" data-name="Excise Tax on Insurance Premiums">Excise Tax on Insurance Premiums (RN)</option>
-                           <option value="CT" data-name="Fuel Charge">Fuel Charge (CT)</option>
-                           <option value="LT" data-name="Luxury Tax">Luxury Tax (LT)</option>
-                           <option value="RU" data-name="Underused Housing Tax">Underused Housing Tax (RU)</option>
-                           <option value="thirdparty">Third-party assessment (T779 / GST259)</option>
-                           <option value="PT">Global minimum tax (PT / RC)</option>
-                        </select> -->
-                       
-                       
-                       
+   
                      </div>
                      <div id="trust-info-section" class="hidden">
                         <label class="required-label" for="s1trust-trustname">Name of trust</label>
@@ -849,11 +834,12 @@
                         </fieldset>
 
                         <div id="s1-address" class="hidden">
-                           <fieldset id="mailing-fieldset">
+                           <div id="canada-address">
+                              <fieldset id="mailing-fieldset">
                               <label class="required-label" for="s1-mailing">Mailing address</label>
                               <input type="text" id="s1-mailing" name="s1-mailing">
-                           </fieldset>
-                           <fieldset>
+                              </fieldset>
+                              <fieldset>
                               <label class="ml-16px" for="s1-unit">Unit/suite number</label>
                               <input class="quarter-width" type="text" id="s1-unit" name="s1-unit">
                            </fieldset>
@@ -884,9 +870,18 @@
                               <label class="required-label" for="s1-postalcode">Postal code</label>
                               <input class="quarter-width" type="text" id="s1-postalcode" name="s1-postalcode">
                            </fieldset>
+                           </div>
+                           <div id="international-address" class="hidden">
+                              <fieldset>
+                              <label class="required-label" for="s1-mailing">Mailing address</label>
+                              <textarea id="s1-mailinginternational" name="s1-mailinginternational"></textarea>
+                            </fieldset>
+                           </div>
+                           
                         </div>
-
-                       <div class="inline-flex">
+                         
+                       
+                            <div class="inline-flex">
                         <fieldset id="telephone-fieldset">
                            <label class="required-label" for="s1-telephone">Telephone number</label>
                            <input type="text" id="s1-telephone" name="s1-telephone" class="full-width">
@@ -898,6 +893,9 @@
                            <input type="text" id="s1-extension" name="s1-extension" class="quarter-width ">
                          </fieldset>
                         </div>
+                        </div>
+
+                      
                       
                 
                          <fieldset id="contactname-fieldset" class="hidden">

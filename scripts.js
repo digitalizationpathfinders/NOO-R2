@@ -268,7 +268,8 @@ class Step1Handler {
 
         this.userFlow = null;
 
-        this.canadaAddress = document.getElementById("s1-address");
+        this.canadaAddress = document.getElementById("canada-address");
+        this.internationalAddress = document.getElementById("international-address");
         this.countryDropdown = document.getElementById("s1-country");
         this.countryDropdown.addEventListener("change", () => {
             this.showAddress(this.countryDropdown.value);
@@ -286,8 +287,6 @@ class Step1Handler {
 
 
         this.accountFieldset = document.getElementById("s1biz-bn-fieldset");
-
-
         this.telephoneNumFieldset = document.getElementById("telephone-fieldset");
         this.mailingAddressFieldset = document.getElementById("mailing-fieldset");
         this.contactNameFieldset = document.getElementById("contactname-fieldset");
@@ -324,9 +323,10 @@ class Step1Handler {
     showAddress(selectedValue) {
         if (selectedValue === "Canada") {
             this.canadaAddress.classList.remove("hidden");
+            this.internationalAddress.classList.add("hidden");
         } else {
             this.canadaAddress.classList.add("hidden");
-
+            this.internationalAddress.classList.remove("hidden");
         }
 
     }
