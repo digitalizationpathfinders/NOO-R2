@@ -1,20 +1,7 @@
 /**
- * Lightweight DOM helpers to keep the rest of the script concise and
- * content-agnostic. Use `$` and `$all` instead of repeated
- * `document.querySelector` calls. Keep helpers small and side-effect free.
+ * Note: Lightweight DOM helper functions were removed because they were
+ * defined but not referenced anywhere in the codebase.
  */
-const $ = (sel, root = document) => root.querySelector(sel);
-const $all = (sel, root = document) => Array.from((root || document).querySelectorAll(sel));
-const on = (el, evt, fn) => el?.addEventListener(evt, fn);
-const createEl = (tag, props = {}, children = []) => {
-    const e = document.createElement(tag);
-    Object.keys(props).forEach(k => {
-        if (k in e) e[k] = props[k];
-        else e.setAttribute(k, props[k]);
-    });
-    children.forEach(c => e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c));
-    return e;
-};
 
 /**
  * Stepper: manages step navigation and delegates step-specific logic to
@@ -288,10 +275,6 @@ class Step1Handler {
         });
 
         this.businessAccountFieldset = document.getElementById("s1biz-bizaccount-fieldset");
-        this.businessAccountFieldset.addEventListener("change", () => {
-            const bizTypes = document.querySelectorAll('input[name="s1biz-accounttype"]:checked');
-
-        });
         this.userTypeFieldset = document.getElementById("s1q7-fieldset");
         this.userTypeFieldset.addEventListener("change", () => {
 
@@ -352,27 +335,17 @@ class Step1Handler {
 class Step2Handler {
     constructor() {
 
-        this.addNoticeButton = document.querySelector('[data-togglelb="addnotice-lightbox"]');
         this.lightbox = new FormLightbox(document.getElementById("addnotice-lightbox"));
 
         this.notices = [];
         this.noticesTable = new TableObj("tb-add-notice");
-        this.firstNoticeAdded = false;
 
         this.largeCorpQuestion = document.getElementById("s2q0-fieldset");
         this.setupListeners();
 
-
-        this.noticeTypeSelection = document.querySelectorAll('input[name="s2q1"]');
         this.noticeDateField = document.getElementById("s2-noticedate-field");
 
         this.extensionFieldset = document.getElementById("s2-timeextension-fieldset");
-
-        // fieldset that contains the notices table
-        this.noticesFieldset = document.getElementById("s2q1-fieldset");
-
-        // container inside time extension fieldset that holds the explanatory text
-        this.timeExtensionTextContainer = this.extensionFieldset ? this.extensionFieldset.querySelector('div') : null;
 
         this.userType = this.getUserType();
 
@@ -1408,21 +1381,11 @@ class DataManager {
             }
         }));
     }
-    static appendToArray(key, newValue) {
-        let existingData = DataManager.getData(key) || [];
-        if (!Array.isArray(existingData)) existingData = []; // Ensure it's an array
-        existingData.push(newValue);
-        DataManager.saveData(key, existingData);
-    }
-
     static getData(key) {
         let data = sessionStorage.getItem(key);
         return data ? JSON.parse(data) : null;
     }
-
-    static clearData(key) {
-        sessionStorage.removeItem(key);
-    }
+    
 }
 
 class FormLightbox {
@@ -1728,11 +1691,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize ProgressiveDisclosure and pass the stepper instance
     new ProgressiveDisclosure(stepper);
 
-    // Load the last step from session storage
-    const savedStepId = sessionStorage.getItem('currentStep');
-    if (savedStepId) {
-        stepper.jumpStep(savedStepId);
-    }
+    // Load the last step from session storage (no jumpStep implementation available)
+    // const savedStepId = sessionStorage.getItem('currentStep');
+    // If you later implement `Stepper.jumpStep(id)` you can restore the saved step here.
 
     // Add event listeners to all next buttons
     document.querySelector('.stepper').addEventListener('click', (event) => {
