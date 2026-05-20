@@ -156,7 +156,8 @@ class Stepper {
             if (input.closest('.hidden')) return;
             const name = input.name;
             if (!name) return;
-
+            // Normalize inputs into a plain object. Handles arrays (data-array),
+            // radios, and checkbox groups so persistence code can treat values consistently.
             // Arrays: elements marked data-array (multiple tax years, etc.)
             if (input.dataset.array === "true") {
                 if (!dataObj[name]) dataObj[name] = [];
@@ -214,11 +215,12 @@ class Stepper {
             mappings.forEach(m => {
                 const cb = document.getElementById(m.checkbox);
 
+                // If account-type checkbox is selected, build a readable summary
                 if (cb && cb.checked) {
                     const bn9 = document.getElementById(m.bn9)?.value?.trim() || "";
                     const bn4 = document.getElementById(m.bn4)?.value?.trim() || "";
 
-                    // Only include if at least partial data exists
+                    // Combine BN9 + prefix + BN4 into a compact identifier for review
                     const fullNumber = `${bn9} ${m.prefix}${bn4}`.trim();
 
                     summary.push(`${m.label} (${fullNumber})`);
@@ -400,21 +402,43 @@ class Step2Handler {
         this.taxYearsFieldset = document.getElementById("tax-years-fieldset");
         this.fiscalFieldset = document.getElementById("fiscal-period-fieldset");
 
-
         this.taxYearsContainer = document.getElementById("tax-years-container");
         this.addTaxYearBtn = document.getElementById("add-tax-year-btn");
-        this.taxYearCount = 1;
 
         this.lineNumbersContainer = document.getElementById("linenumbers-container");
         this.addLineNumberBtn = document.getElementById("add-linenumber-btn");
-        this.lineNumberCount = 1;
+
+        // Use ListBuilder for dynamic list inputs
+        if (this.taxYearsContainer) {
+            this.taxYearListBuilder = new ListBuilder({
+                container: this.taxYearsContainer,
+                inputType: 'number',
+                inputName: 's2q3',
+                inputClasses: ['tax-year-input', 'quarter-width'],
+                rowClasses: ['tax-year-row', 'inline-flex', 'align-center'],
+                deleteButtonText: 'Delete',
+                inputAttributes: { min: '1900', max: '2100' }
+            });
+        }
+
+        if (this.lineNumbersContainer) {
+            this.lineNumberListBuilder = new ListBuilder({
+                container: this.lineNumbersContainer,
+                inputType: 'text',
+                inputName: 's2q4',
+                inputClasses: ['linenumber-input', 'half-width'],
+                rowClasses: ['line-number-row', 'inline-flex', 'align-center'],
+                deleteButtonText: 'Delete'
+            });
+        }
 
         if (this.addTaxYearBtn) {
-            this.addTaxYearBtn.addEventListener("click", () => this.addTaxYearInput());
+            this.addTaxYearBtn.addEventListener("click", () => this.taxYearListBuilder?.addInput());
         }
         if (this.addLineNumberBtn) {
-            this.addLineNumberBtn.addEventListener("click", () => this.addLineNumberInput());
+            this.addLineNumberBtn.addEventListener("click", () => this.lineNumberListBuilder?.addInput());
         }
+
         this.noticeDateField.addEventListener("change", () => {
             this.handleNoticeDateChange();
         });
@@ -460,14 +484,12 @@ class Step2Handler {
         let noticeDate = formData["s2noticedate"];
         let taxYear;
 
+        // For businesses we store a reporting period (start → end). For individuals
+        // we accept one or more tax years (may be an array from multiple inputs).
         if (this.userType === "Business") {
-            // Replace tax year with reporting period (From → To)
             taxYear = `${formData["s2_fiscalperiodstart"]} to ${formData["s2_fiscalperiodend"]}`;
         } else {
-            // Handle normal tax year (may be array)
-            taxYear = Array.isArray(formData["s2q3"]) ?
-                formData["s2q3"].join(", ") :
-                formData["s2q3"];
+            taxYear = Array.isArray(formData["s2q3"]) ? formData["s2q3"].join(", ") : formData["s2q3"];
         }
 
         return {
@@ -528,13 +550,15 @@ class Step2Handler {
         const saved = DataManager.getData('stepData_1')?.['s1biz-accounttype'];
         const summaryHasCorp = typeof saved === 'string' && /Corporation/i.test(saved);
 
+        // Show the large-corporation question only for businesses and only when the
+        // corporation account-type is present (live or saved summary).
         const shouldShow = this.userType === 'Business' && (checkboxSelected || summaryHasCorp);
 
         if (shouldShow) {
             this.largeCorpQuestion.classList.remove('hidden');
         } else {
             this.largeCorpQuestion.classList.add('hidden');
-            // clear any selected values when hiding
+            // When hiding, clear any inputs to avoid stale saved values
             const inputs = this.largeCorpQuestion.querySelectorAll('input');
             inputs.forEach(i => {
                 if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
@@ -558,6 +582,7 @@ class Step2Handler {
 
         if (!this.userType) return;
 
+        // Toggle the UI between individual tax-years and business fiscal reporting period
         if (this.userType === "Business") {
             this.taxYearsFieldset.classList.add("hidden");
             this.fiscalFieldset.classList.remove("hidden");
@@ -567,59 +592,7 @@ class Step2Handler {
         }
     }
 
-    addTaxYearInput() {
-        if (!this.taxYearsContainer) return;
-        this.taxYearCount++;
-
-        const row = document.createElement('div');
-        row.classList.add('tax-year-row', 'inline-flex', 'align-center');
-        row.style.alignItems = 'center';
-
-        const newInput = document.createElement('input');
-        newInput.type = 'number';
-        newInput.name = 's2q3';
-        newInput.min = '1900';
-        newInput.max = '2100';
-        newInput.dataset.array = 'true';
-        newInput.classList.add('tax-year-input', 'quarter-width');
-       
-        const deleteButton = document.createElement('button');
-        deleteButton.type = 'button';
-        deleteButton.classList.add('btn', 'btn-tertiary', 'ml-8px');
-        deleteButton.innerHTML = '<span class="material-icons">close</span> Delete';
-        deleteButton.addEventListener('click', () => {
-            row.remove();
-        });
-
-        row.appendChild(newInput);
-        row.appendChild(deleteButton);
-        this.taxYearsContainer.appendChild(row);
-    }
-    addLineNumberInput() {
-        this.lineNumberCount++;
-
-        const row = document.createElement('div');
-        row.classList.add('line-number-row', 'inline-flex', 'align-center');
-        row.style.alignItems = 'center';
-
-        const newInput = document.createElement('input');
-        newInput.type = 'text';
-        newInput.name = 's2q4';
-        newInput.dataset.array = 'true';
-        newInput.classList.add('linenumber-input', 'half-width');
-       
-        const deleteButton = document.createElement('button');
-        deleteButton.type = 'button';
-        deleteButton.classList.add('btn', 'btn-tertiary', 'ml-8px');
-        deleteButton.innerHTML = '<span class="material-icons">close</span> Delete';
-        deleteButton.addEventListener('click', () => {
-            row.remove();
-        });
-
-        row.appendChild(newInput);
-        row.appendChild(deleteButton);
-        this.lineNumbersContainer.appendChild(row);
-    }
+    // Dynamic list inputs are handled by ListBuilder instances
 
 
     handleNoticeDateChange() {
@@ -837,6 +810,65 @@ class CharacterCounter {
         } else {
             this.counterEl.textContent = `${currentLength} characters`;
         }
+    }
+}
+
+class ListBuilder {
+     constructor({
+        container,
+        inputType = 'text',
+        inputName,
+        inputClasses = [],
+        rowClasses = [],
+        deleteButtonText = 'Delete',
+        inputAttributes = {}
+    }) {
+        this.container = container;
+        this.inputType = inputType;
+        this.inputName = inputName;
+        this.inputClasses = inputClasses;
+        this.rowClasses = rowClasses;
+        this.deleteButtonText = deleteButtonText;
+        this.inputAttributes = inputAttributes;
+    }
+    addInput() {
+        if (!this.container) return;
+        // Build a row containing the input and a delete button. The input is
+        // marked with `data-array=true` so the Stepper parser treats it as an array.
+        const row = document.createElement('div');
+        row.classList.add(...this.rowClasses);
+        row.style.alignItems = 'center';
+
+        const input = document.createElement('input');
+        input.type = this.inputType;
+        input.name = this.inputName;
+        input.dataset.array = 'true';
+
+        input.classList.add(...this.inputClasses);
+
+        // Apply any additional attributes (min/max for number inputs, etc.)
+        Object.entries(this.inputAttributes).forEach(([key, value]) => {
+            input.setAttribute(key, value);
+        });
+
+        // Delete button simply removes the row from the DOM
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.classList.add('btn', 'btn-tertiary', 'ml-8px');
+
+        deleteButton.innerHTML = `
+            <span class="material-icons">close</span>
+            ${this.deleteButtonText}
+        `;
+
+        deleteButton.addEventListener('click', () => {
+            row.remove();
+        });
+
+        row.appendChild(input);
+        row.appendChild(deleteButton);
+
+        this.container.appendChild(row);
     }
 }
 
@@ -1071,9 +1103,11 @@ class TableObj {
     }
     deleteRow(index) {
         index = parseInt(index);
+        // Remove the data at `index` and redraw the table to keep UI in sync
         this.rows.splice(index, 1);
         this.refreshTable();
 
+        // Notify listeners that a row was deleted so persistence/UI can update
         document.dispatchEvent(new CustomEvent("rowDeleted", {
             detail: {
                 tableID: this.table.id
