@@ -389,8 +389,8 @@ class Step2Handler {
                 inputName: 's2q3',
                 inputClasses: ['tax-year-input', 'quarter-width'],
                 rowClasses: ['tax-year-row', 'inline-flex', 'align-center'],
-                deleteButtonText: 'Delete',
-                inputAttributes: { min: '1900', max: '2100' }
+                deleteButtonText: 'Delete'
+                
             });
         }
 
