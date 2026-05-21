@@ -8,6 +8,66 @@
  * handler classes. Keep the Stepper focused on navigation, state
  * management, and persistence; move UI-specific behaviour into handlers.
  */
+/*
+ * Utils: small collection of pure helpers kept in-file to reduce
+ * duplication and make intent clearer. These are intentionally
+ * lightweight and DOM-agnostic where practical.
+ */
+const Utils = {
+    getById(id) {
+        return document.getElementById(id);
+    },
+    isChecked(id) {
+        const el = document.getElementById(id);
+        return !!el && !!el.checked;
+    },
+    show(el) {
+        if (!el) return;
+        if (typeof el === 'string') el = document.getElementById(el);
+        el.classList.remove('hidden');
+    },
+    hide(el) {
+        if (!el) return;
+        if (typeof el === 'string') el = document.getElementById(el);
+        el.classList.add('hidden');
+    },
+    clearFieldsetInputs(fieldset) {
+        if (!fieldset) return;
+        const inputs = fieldset.querySelectorAll('input, select, textarea');
+        inputs.forEach(i => {
+            if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
+            else i.value = '';
+        });
+    },
+    addDays(date, days) {
+        const result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
+    },
+    extractInputValuesByName(name) {
+        return Array.from(document.querySelectorAll(`input[name="${name}"]`))
+            .map(i => i.value?.trim())
+            .filter(Boolean);
+    },
+    parseLatestTaxYear(values) {
+        const years = values.flatMap((value) => {
+            return Array.from(value.matchAll(/\b(19|20)\d{2}\b/g), (match) => parseInt(match[0], 10));
+        });
+
+        return years.length ? Math.max(...years) : null;
+    },
+    formatDate(value) {
+        if (!value) return "N/A";
+        const date = new Date(value);
+        if (isNaN(date)) return value;
+        return date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        });
+    }
+};
+
 class Stepper {
     constructor(stepSelector) {
         this.steps = Array.from(document.querySelectorAll(stepSelector));
@@ -258,17 +318,12 @@ class Stepper {
                     this.stepHandlers[stepNum] = new Step3Handler(this);
                     break;
 
-
             }
         }
         if (stepNum == 2) {
 
             this.stepHandlers[stepNum].onActivate();
         }
-
-
-
-
     }
 }
 class Step1Handler {
@@ -633,11 +688,9 @@ class Step2Handler {
 
     isMoreThan90Days(dateStr) {
         const noticeDate = new Date(dateStr);
-        if (isNaN(noticeDate)) {
-            return false;
-        }
+        if (isNaN(noticeDate)) return false;
 
-        const noticeDeadline = this.addDays(noticeDate, 90);
+        const noticeDeadline = Utils.addDays(noticeDate, 90);
         const returnDeadline = this.getLatestReturnDeadline();
         const comparisonDate = new Date();
 
@@ -650,7 +703,7 @@ class Step2Handler {
 
     getLatestReturnDeadline() {
         const taxYearValues = this.getLatestTaxYearValues();
-        const latestYear = this.parseLatestTaxYear(taxYearValues);
+        const latestYear = Utils.parseLatestTaxYear(taxYearValues);
         if (!latestYear) {
             return null;
         }
@@ -670,37 +723,20 @@ class Step2Handler {
     }
 
     getLatestTaxYearValues() {
-        const values = [];
-        const taxYearInputs = Array.from(document.querySelectorAll('input[name="s2q3"]'));
-
-        taxYearInputs.forEach((input) => {
-            if (input.value?.trim()) {
-                values.push(input.value.trim());
-            }
-        });
-
+        const values = Utils.extractInputValuesByName('s2q3');
         if (values.length === 0) {
             const fiscalEnd = document.querySelector('input[name="s2_fiscalperiodend"]')?.value;
-            if (fiscalEnd?.trim()) {
-                values.push(fiscalEnd.trim());
-            }
+            if (fiscalEnd?.trim()) values.push(fiscalEnd.trim());
         }
-
         return values;
     }
 
     parseLatestTaxYear(values) {
-        const years = values.flatMap((value) => {
-            return Array.from(value.matchAll(/\b(19|20)\d{2}\b/g), (match) => parseInt(match[0], 10));
-        });
-
-        return years.length ? Math.max(...years) : null;
+        return Utils.parseLatestTaxYear(values);
     }
 
     addDays(date, days) {
-        const result = new Date(date);
-        result.setDate(result.getDate() + days);
-        return result;
+        return Utils.addDays(date, days);
     }
 }
 
@@ -823,17 +859,7 @@ class Step3Handler {
     }
 
     formatDate(value) {
-        if (!value)
-            return "N/A";
-        const date = new Date(value);
-
-        if (isNaN(date))
-            return value;
-        return date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric"
-        });
+        return Utils.formatDate(value);
     }
 
 
