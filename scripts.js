@@ -15,9 +15,9 @@ class Stepper {
         this.observeStepContentChanges();
 
         this.stepHandlers = {}; // Store step instances
+        this.loadStoredData();
         this.updateStepNumbers();
-        this.customStepCode(this.steps.indexOf(this.activeStep))
-
+        this.customStepCode(this.steps.indexOf(this.activeStep));
     }
 
     adjustMaxHeight(step) {
@@ -44,7 +44,8 @@ class Stepper {
         this.activeStep = step;
 
         this.updateStepNumbers();
-        this.customStepCode(this.steps.indexOf(this.activeStep))
+        this.loadStoredDataForStep(this.steps.indexOf(this.activeStep));
+        this.customStepCode(this.steps.indexOf(this.activeStep));
 
         //this.adjustMaxHeight(step); //hiding this fixed the accordion issue, unknown other effects/imapcts though
     }
@@ -219,21 +220,28 @@ class Stepper {
     }
     loadStoredData() {
         this.steps.forEach((step, index) => {
-            let savedData = DataManager.getData(`stepData_${index}`);
-            if (!savedData) return;
+            this.loadStoredDataForStep(index);
+        });
+    }
 
-            Object.keys(savedData).forEach(key => {
-                let input = step.querySelector(`[name="${key}"]`);
-                if (input) {
-                    if (input.type === "radio" || input.type === "checkbox") {
-                        if (input.value === savedData[key]) {
-                            input.checked = true;
-                        }
-                    } else {
-                        input.value = savedData[key];
+    loadStoredDataForStep(stepNum) {
+        const step = this.steps[stepNum];
+        if (!step) return;
+
+        let savedData = DataManager.getData(`stepData_${stepNum}`);
+        if (!savedData) return;
+
+        Object.keys(savedData).forEach(key => {
+            let input = step.querySelector(`[name="${key}"]`);
+            if (input) {
+                if (input.type === "radio" || input.type === "checkbox") {
+                    if (input.value === savedData[key]) {
+                        input.checked = true;
                     }
+                } else {
+                    input.value = savedData[key];
                 }
-            });
+            }
         });
     }
 
@@ -340,7 +348,8 @@ class Step2Handler {
         this.notices = [];
         this.noticesTable = new TableObj("tb-add-notice");
 
-        this.largeCorpQuestion = document.getElementById("s2q0-fieldset");
+        this.largeCorpQuestionRC = document.getElementById("s2q0-rc-fieldset");
+        this.largeCorpQuestionRT = document.getElementById("s2q0-rt-fieldset");
         this.setupListeners();
 
         this.noticeDateField = document.getElementById("s2-noticedate-field");
@@ -349,8 +358,9 @@ class Step2Handler {
 
         this.userType = this.getUserType();
 
-        // id of the Corporation account-type checkbox in Step 1
+        // ids of the business account-type checkboxes in Step 1
         this.corpCheckboxId = 's1biz-accounttype-op1';
+        this.gstCheckboxId = 's1biz-accounttype-op2';
 
         // react to saved Step 1 changes (DataManager.saveData triggers 'dataUpdated')
         document.addEventListener('dataUpdated', (e) => {
@@ -358,18 +368,26 @@ class Step2Handler {
                 this.userType = this.getUserType();
                 this.renderLargeCorpQuestion();
                 this.updateNoticesHeader();
+                this.updateObjectionDescriptionText();
             }
         });
 
         // react to direct checkbox toggles in Step 1 (live)
         const corpCheckboxEl = document.getElementById(this.corpCheckboxId);
+        const gstCheckboxEl = document.getElementById(this.gstCheckboxId);
+
+        const accountTypeChanged = () => {
+            this.userType = this.getUserType();
+            this.renderLargeCorpQuestion();
+            this.updateNoticesHeader();
+            this.updateObjectionDescriptionText();
+        };
+
         if (corpCheckboxEl) {
-            corpCheckboxEl.addEventListener('change', () => {
-                this.userType = this.getUserType();
-              
-                this.renderLargeCorpQuestion();
-                this.updateNoticesHeader();
-            });
+            corpCheckboxEl.addEventListener('change', accountTypeChanged);
+        }
+        if (gstCheckboxEl) {
+            gstCheckboxEl.addEventListener('change', accountTypeChanged);
         }
 
         this.taxYearsFieldset = document.getElementById("tax-years-fieldset");
@@ -412,9 +430,12 @@ class Step2Handler {
             this.addLineNumberBtn.addEventListener("click", () => this.lineNumberListBuilder?.addInput());
         }
 
-        this.noticeDateField.addEventListener("change", () => {
-            this.handleNoticeDateChange();
-        });
+        if (this.taxYearsContainer) {
+            this.taxYearsContainer.addEventListener("input", () => this.handleNoticeDateChange());
+        }
+        if (this.fiscalFieldset) {
+            this.fiscalFieldset.addEventListener("input", () => this.handleNoticeDateChange());
+        }
 
 
 
@@ -449,8 +470,7 @@ class Step2Handler {
         const newNotice = this.getNewNoticeFromForm(formData);
 
         this.updateNoticeTable(newNotice, editIndex);
-
-
+        this.handleNoticeDateChange();
     }
     getNewNoticeFromForm(formData) {
 
@@ -511,33 +531,48 @@ class Step2Handler {
         this.renderLargeCorpQuestion();
         // update notices table header label (Tax year → Reporting period for business)
         this.updateNoticesHeader();
-        
+        this.updateObjectionDescriptionText();
+
+        if (this.noticeDateField?.value) {
+            this.handleNoticeDateChange();
+        }
     }
 
     renderLargeCorpQuestion() {
-     
-        // Check live checkbox state
-        const checkboxSelected = !!document.getElementById(this.corpCheckboxId)?.checked;
+        const isBusinessFlow = this.userType === 'Business';
 
-        // Check saved summary (if present)
-        const saved = DataManager.getData('stepData_1')?.['s1biz-accounttype'];
-        const summaryHasCorp = typeof saved === 'string' && /Corporation/i.test(saved);
+        const rcSelected = isBusinessFlow && this.isBusinessAccountTypeSelected(this.corpCheckboxId, 'RC');
+        const rtSelected = isBusinessFlow && this.isBusinessAccountTypeSelected(this.gstCheckboxId, 'RT');
 
-        // Show the large-corporation question only for businesses and only when the
-        // corporation account-type is present (live or saved summary).
-        const shouldShow = this.userType === 'Business' && (checkboxSelected || summaryHasCorp);
-
-        if (shouldShow) {
-            this.largeCorpQuestion.classList.remove('hidden');
-        } else {
-            this.largeCorpQuestion.classList.add('hidden');
-            // When hiding, clear any inputs to avoid stale saved values
-            const inputs = this.largeCorpQuestion.querySelectorAll('input');
-            inputs.forEach(i => {
-                if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
-                else i.value = '';
-            });
+        if (this.largeCorpQuestionRC) {
+            this.largeCorpQuestionRC.classList.toggle('hidden', !rcSelected);
+            if (!rcSelected) {
+                this.clearFieldsetInputs(this.largeCorpQuestionRC);
+            }
         }
+
+        if (this.largeCorpQuestionRT) {
+            this.largeCorpQuestionRT.classList.toggle('hidden', !rtSelected);
+            if (!rtSelected) {
+                this.clearFieldsetInputs(this.largeCorpQuestionRT);
+            }
+        }
+    }
+
+    isBusinessAccountTypeSelected(checkboxId, prefix) {
+        const checkboxSelected = !!document.getElementById(checkboxId)?.checked;
+        const saved = DataManager.getData('stepData_1')?.['s1biz-accounttype'];
+        const summaryHasType = typeof saved === 'string' && saved.includes(`(${prefix})`);
+        return checkboxSelected || summaryHasType;
+    }
+
+    clearFieldsetInputs(fieldset) {
+        if (!fieldset) return;
+        const inputs = fieldset.querySelectorAll('input');
+        inputs.forEach(i => {
+            if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
+            else i.value = '';
+        });
     }
 
     updateNoticesHeader() {
@@ -546,6 +581,31 @@ class Step2Handler {
         const ths = table.querySelectorAll('thead th');
         if (!ths || ths.length < 2) return;
         ths[1].textContent = this.userType === 'Business' ? 'Reporting period' : 'Tax year';
+    }
+
+    updateObjectionDescriptionText() {
+        const descriptionEl = document.getElementById('s2q2-sub-label');
+        if (!descriptionEl) return;
+
+        const userType = this.getUserType();
+        const rcSelected = this.isBusinessRCSelected();
+
+        if (userType === 'Business') {
+            if (rcSelected) {
+                descriptionEl.textContent = 'Reasonably describe each issue to be decided, specify the amount of relief sought for each issue and provide the facts and reasons relied upon for each issue.';
+            } else {
+                descriptionEl.textContent = 'Reasonably describe the issue and include how you think CRA misunderstood the facts of the situation or applied the law incorrectly when making their assessment.';
+            }
+        } else {
+            descriptionEl.textContent = 'You should include how you think CRA misunderstood the facts of your situation or applied the law incorrectly when making their assessment';
+        }
+    }
+
+    isBusinessRCSelected() {
+        const checkboxSelected = !!document.getElementById(this.corpCheckboxId)?.checked;
+        const saved = DataManager.getData('stepData_1')?.['s1biz-accounttype'];
+        const summaryHasCorp = typeof saved === 'string' && /Corporation/i.test(saved);
+        return checkboxSelected || summaryHasCorp;
     }
 
     setYearOrFiscalField() {
@@ -572,17 +632,75 @@ class Step2Handler {
     }
 
     isMoreThan90Days(dateStr) {
-        const entered = new Date(dateStr);
-
-        if (isNaN(entered)) {
+        const noticeDate = new Date(dateStr);
+        if (isNaN(noticeDate)) {
             return false;
         }
 
-        const today = new Date();
-        const diffDays = (today - entered) / (1000 * 60 * 60 * 24);
+        const noticeDeadline = this.addDays(noticeDate, 90);
+        const returnDeadline = this.getLatestReturnDeadline();
+        const comparisonDate = new Date();
 
+        if (returnDeadline) {
+            return comparisonDate > (returnDeadline > noticeDeadline ? returnDeadline : noticeDeadline);
+        }
 
-        return diffDays > 90;
+        return comparisonDate > noticeDeadline;
+    }
+
+    getLatestReturnDeadline() {
+        const taxYearValues = this.getLatestTaxYearValues();
+        const latestYear = this.parseLatestTaxYear(taxYearValues);
+        if (!latestYear) {
+            return null;
+        }
+
+        const step1 = DataManager.getData("stepData_1") || {};
+        const userType = this.getUserType();
+        const selfEmployed = step1["s1ind-selfemployed"] === "Yes";
+        const filingYear = latestYear + 1;
+
+        if (userType === "Individual") {
+            const month = selfEmployed ? 5 : 3; // June 15 or April 30
+            const day = selfEmployed ? 15 : 30;
+            return new Date(filingYear, month, day);
+        }
+
+        return new Date(filingYear, 3, 30); // April 30 for non-individual returns
+    }
+
+    getLatestTaxYearValues() {
+        const values = [];
+        const taxYearInputs = Array.from(document.querySelectorAll('input[name="s2q3"]'));
+
+        taxYearInputs.forEach((input) => {
+            if (input.value?.trim()) {
+                values.push(input.value.trim());
+            }
+        });
+
+        if (values.length === 0) {
+            const fiscalEnd = document.querySelector('input[name="s2_fiscalperiodend"]')?.value;
+            if (fiscalEnd?.trim()) {
+                values.push(fiscalEnd.trim());
+            }
+        }
+
+        return values;
+    }
+
+    parseLatestTaxYear(values) {
+        const years = values.flatMap((value) => {
+            return Array.from(value.matchAll(/\b(19|20)\d{2}\b/g), (match) => parseInt(match[0], 10));
+        });
+
+        return years.length ? Math.max(...years) : null;
+    }
+
+    addDays(date, days) {
+        const result = new Date(date);
+        result.setDate(result.getDate() + days);
+        return result;
     }
 }
 
@@ -1528,10 +1646,6 @@ class ProgressiveDisclosure {
         this.outConditions = [
             //step 1 selections that result in an "out"
             ["s0q1-op2"],
-            ["s0q2-op1"],
-            ["s0q2-op2"],
-            ["s0q2-op3"],
-            ["s0q2-op4"],
             ["s1q2-op1"],
             ["s1q2-op3"],
             ["s1q3-op2"]
@@ -1691,6 +1805,37 @@ class ProgressiveDisclosure {
         const outBtn = activeStep.querySelector('.out-button');
 
         if (!outBtn) return; // If no next button is found, exit
+
+        if (activeStep.id === 'step-0') {
+            const firstQuestionYes = document.getElementById('s0q1-op1')?.checked;
+            const firstQuestionNo = document.getElementById('s0q1-op2')?.checked;
+            const anotherReasonSelected = document.getElementById('s0q2-op5')?.checked;
+
+            const s0q2op1 = document.getElementById('s0q2-op1')?.checked;
+            const s0q2op2 = document.getElementById('s0q2-op2')?.checked;
+            const s0q2op3 = document.getElementById('s0q2-op3')?.checked;
+            const s0q2op4 = document.getElementById('s0q2-op4')?.checked;
+
+            // Show Return to Canada.ca when user answered 'No' to first question
+            // or when they selected one of the first four options in s0q2
+            if (firstQuestionNo || (firstQuestionYes && (s0q2op1 || s0q2op2 || s0q2op3 || s0q2op4))) {
+                nextBtn?.classList.add('hidden');
+                outBtn.classList.remove('hidden');
+            } else if (firstQuestionYes && anotherReasonSelected) {
+                // Begin only when first question is Yes AND s0q2 'Another reason' is selected
+                nextBtn?.classList.remove('hidden');
+                outBtn.classList.add('hidden');
+            } else {
+                // No buttons until required path is chosen
+                nextBtn?.classList.add('hidden');
+                outBtn.classList.add('hidden');
+            }
+
+            if (backBtn) {
+                backBtn.classList.add('hidden');
+            }
+            return;
+        }
 
         if (isOut) {
             nextBtn.classList.add("hidden");

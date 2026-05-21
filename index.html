@@ -142,7 +142,7 @@
                            </div>
                         </div>
                      </fieldset>
-                     <button class="btn btn-primary next-button" type="button">Begin</button>
+                     <button class="hidden btn btn-primary next-button" type="button">Begin</button>
                      <button class="hidden btn btn-primary out-button" type="button" onclick="location.href='index.html'">Return to Canada.ca</button>
                   </form>
                </div>
@@ -421,14 +421,14 @@
                                     name="s1biz-accounttype-rt" 
                                     id="s1biz-accounttype-op2" 
                                     type="checkbox" 
-                                    value="GST/HST (RT)" 
+                                    value="GoodsST/HST (RT)" 
                                     data-prefix="RT"
                                     data-toggle="s1biz-subgroup-RT">
                                  <label for="s1biz-accounttype-op2"></label>
                               </div>
 
                               <div id="s1biz-subgroup-RT" class="sub-group hidden">
-                                 <label for="s1biz-BN9-RT" class="required-label">GST/HST business number</label>
+                                 <label for="s1biz-BN9-RT" class="required-label">Goods and Services Tax/Harmonized Sales Tax (GST/HST) business number</label>
                                  <div class="input-wrapper ml-16px">
                                     <input class="BN9" type="text" id="s1biz-BN9-RT" name="s1biz-BN9-RT" maxlength="9" placeholder="123456789">
                                     <div class="static">RT</div>
@@ -935,17 +935,27 @@
                   <form id="step-2-form">
                      <div class="required">Fields marked with an asterisk (<span class="ast">*</span>) are required.</div>
 
-                  <fieldset id="s2q0-fieldset" data-radio-group class="hidden">
+                  <fieldset id="s2q0-rc-fieldset" data-radio-group class="hidden">
                      <legend class="required-label"> Are you a large corporation with aprevious year taxable capital employed in Canada greater than $10,000,000?</legend>
                      <div class="group">
-                        <input type="radio" id="s2q0-op1" name="s2q0" value="Yes">
-                        <label for="s2q0-op1"></label>
+                        <input type="radio" id="s2q0-rc-op1" name="s2q0-rc" value="Yes">
+                        <label for="s2q0-rc-op1"></label>
                      </div>
                      <div class="group">
-                        <input type="radio" id="s2q0-op2" name="s2q0" value="No" >
-                        <label for="s2q0-op2"></label>
+                        <input type="radio" id="s2q0-rc-op2" name="s2q0-rc" value="No" >
+                        <label for="s2q0-rc-op2"></label>
                      </div>
-             
+                  </fieldset>
+                  <fieldset id="s2q0-rt-fieldset" data-radio-group class="hidden">
+                     <legend class="required-label"> Are you a specified person for the purposes of the Excise Tax Act?</legend>
+                     <div class="group">
+                        <input type="radio" id="s2q0-rt-op1" name="s2q0-rt" value="Yes">
+                        <label for="s2q0-rt-op1"></label>
+                     </div>
+                     <div class="group">
+                        <input type="radio" id="s2q0-rt-op2" name="s2q0-rt" value="No" >
+                        <label for="s2q0-rt-op2"></label>
+                     </div>
                   </fieldset>
                      <fieldset id="s2q1-fieldset" class="" required>
                                 <label class="required-label" for="s2q1-field">Tell us about the notice(s) you are objecting to.</label>
@@ -976,7 +986,7 @@
                         <textarea id="s2-timeextension" name="s2timeextension" ></textarea>
                      </fieldset>
                      <fieldset id="s2q2-fieldset">
-                        <label for="s2q2-field" class="required-label">Describe the details, facts and reasons for your objection.<br> <span class="sub-label">You should include how you think CRA misunderstood the facts of your situation or applied the law incorrectly when making their assessment</span></label>
+                        <label for="s2q2-field" class="required-label">Describe the details, facts and reasons for your objection.<br> <span class="sub-label" id="s2q2-sub-label">You should include how you think CRA misunderstood the facts of your situation or applied the law incorrectly when making their assessment</span></label>
                        
                         <textarea id="s2q2-field" name="s2q2" data-maxlength="2500" maxlength="2500"></textarea>
                      </fieldset>
