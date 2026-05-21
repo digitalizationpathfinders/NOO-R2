@@ -38,110 +38,113 @@
             </div>
             <div class="step-content">
                <div class="container">
-                  <p>This form can be used to file an objection if you disagree with taxes, benefits, or credits assessed or determined by the Canada Revenue Agency (CRA).<br><br>
-                  <strong>Note:</strong> If you have already been contacted by the area responsible for issuing your  assessment or determination, we strongly recommend that you discuss the matter with that area.</p>
-                  <fieldset id="s0q1-fieldset" data-radio-group>
-                     <legend class="required-label"> Have you received a notice of assessment, reassessment, determination or redetermination for the issue you are objecting to?</legend>
-                     <div class="group">
-                        <input type="radio" id="s0q1-op1" name="s0q1" value="Yes" data-toggle="s0q2-fieldset">
-                        <label for="s0q1-op1"></label>
-                     </div>
-                     <div class="group">
-                        <input type="radio" id="s0q1-op2" name="s0q1" value="No" data-toggle="alert-unfiled-final">
-                        <label for="s0q1-op2"></label>
-                     </div>
-                     <div class="alert hidden" id="alert-unfiled-final">
-                        <div class="alert-error">
-                           <div class="line"></div>
-                           <div><span class="material-icons">
-                              report
-                              </span>
+                  <form id="step-0-form">
+                     <div class="required">Fields marked with an asterisk (<span class="ast">*</span>) are required.</div>
+                     <p>This form can be used to file an objection if you disagree with taxes, benefits, or credits assessed or determined by the Canada Revenue Agency (CRA).<br><br>
+                     <strong>Note:</strong> If you have already been contacted by the area responsible for issuing your  assessment or determination, we strongly recommend that you discuss the matter with that area.</p>
+                     <fieldset id="s0q1-fieldset" data-radio-group>
+                        <legend class="required-label"> Have you received a notice of assessment, reassessment, determination or redetermination for the issue you are objecting to?</legend>
+                        <div class="group">
+                           <input type="radio" id="s0q1-op1" name="s0q1" value="Yes" data-toggle="s0q2-fieldset">
+                           <label for="s0q1-op1"></label>
+                        </div>
+                        <div class="group">
+                           <input type="radio" id="s0q1-op2" name="s0q1" value="No" data-toggle="alert-unfiled-final">
+                           <label for="s0q1-op2"></label>
+                        </div>
+                        <div class="alert hidden" id="alert-unfiled-final">
+                           <div class="alert-error">
+                              <div class="line"></div>
+                              <div><span class="material-icons">
+                                 report
+                                 </span>
+                              </div>
+                              <div class="line"></div>
                            </div>
-                           <div class="line"></div>
-                        </div>
-                        <div class="alert-content">
-                           <h5>You cannot continue</h5>
-                           You must have received a notice related to the issue you are objecting to before you can continue with this form. 
-                        </div>
-                     </div>
-                  </fieldset>
-                  <fieldset class="hidden" id="s0q2-fieldset" data-radio-group>
-                     <legend class="required-label"> Is your objection related to any of the following:</legend>
-                     <div class="group">
-                        <input type="radio" id="s0q2-op1" name="s0q2" value="Canceling or waiving penalties and interest" data-toggle="alert-misdirect-peninterest">
-                        <label for="s0q2-op1"></label>
-                     </div>
-                     <div class="group">
-                        <input type="radio" id="s0q2-op2" name="s0q2" value="Canceling taxes on excess Tax Free Saving Account (TFSA) contributions" data-toggle="alert-misdirect-tfsa">
-                        <label for="s0q2-op2"></label>
-                     </div>
-                      <div class="group">
-                        <input type="radio" id="s0q2-op3" name="s0q2" value="Changing or correcting my return" data-toggle="alert-misdirect-changereturn">
-                        <label for="s0q2-op3"></label>
-                     </div>
-                     <div class="group">
-                        <input type="radio" id="s0q2-op4" name="s0q2" value="Canada Pension Plan ruling" data-toggle="alert-misdirect-cpp">
-                        <label for="s0q2-op4"></label>
-                     </div>
-                     <div class="group">
-                        <input type="radio" id="s0q2-op5" name="s0q2" value="Another reason">
-                        <label for="s0q2-op5"></label>
-                     </div>
-                     <div class="alert hidden" id="alert-misdirect-peninterest">
-                        <div class="alert-error">
-                           <div class="line"></div>
-                           <div><span class="material-icons">
-                              report
-                              </span>
+                           <div class="alert-content">
+                              <h5>You cannot continue</h5>
+                              You must have received a notice related to the issue you are objecting to before you can continue with this form. 
                            </div>
-                           <div class="line"></div>
                         </div>
-                        <div class="alert-content">
-                           Filing an objection may not be the best solution for your situation. If you would like more information on penalties or interest, visit <a href="#">Self-Evaluation and Learning Tool (SELT): Cancel or waive penalties and interest</a>
+                     </fieldset>
+                     <fieldset class="hidden" id="s0q2-fieldset" data-radio-group>
+                        <legend class="required-label"> Is your objection related to any of the following:</legend>
+                        <div class="group">
+                           <input type="radio" id="s0q2-op1" name="s0q2" value="Canceling or waiving penalties and interest" data-toggle="alert-misdirect-peninterest">
+                           <label for="s0q2-op1"></label>
                         </div>
-                     </div>
-                     <div class="alert hidden" id="alert-misdirect-tfsa">
-                        <div class="alert-error">
-                           <div class="line"></div>
-                           <div><span class="material-icons">
-                              report
-                              </span>
+                        <div class="group">
+                           <input type="radio" id="s0q2-op2" name="s0q2" value="Canceling taxes on excess Tax Free Saving Account (TFSA) contributions" data-toggle="alert-misdirect-tfsa">
+                           <label for="s0q2-op2"></label>
+                        </div>
+                        <div class="group">
+                           <input type="radio" id="s0q2-op3" name="s0q2" value="Changing or correcting my return" data-toggle="alert-misdirect-changereturn">
+                           <label for="s0q2-op3"></label>
+                        </div>
+                        <div class="group">
+                           <input type="radio" id="s0q2-op4" name="s0q2" value="Canada Pension Plan ruling" data-toggle="alert-misdirect-cpp">
+                           <label for="s0q2-op4"></label>
+                        </div>
+                        <div class="group">
+                           <input type="radio" id="s0q2-op5" name="s0q2" value="Another reason">
+                           <label for="s0q2-op5"></label>
+                        </div>
+                        <div class="alert hidden" id="alert-misdirect-peninterest">
+                           <div class="alert-error">
+                              <div class="line"></div>
+                              <div><span class="material-icons">
+                                 report
+                                 </span>
+                              </div>
+                              <div class="line"></div>
                            </div>
-                           <div class="line"></div>
-                        </div>
-                        <div class="alert-content">
-                           Filing an objection may not be the best solution for your situation.  You may be looking to waive or cancel taxes on your excess TFSA contributions. To learn how to do so, go to <a href="#">Waiver or cancellation of the TFSA taxes</a>
-                        </div>
-                     </div>
-                     <div class="alert hidden" id="alert-misdirect-changereturn">
-                        <div class="alert-error">
-                           <div class="line"></div>
-                           <div><span class="material-icons">
-                              report
-                              </span>
+                           <div class="alert-content">
+                              Filing an objection may not be the best solution for your situation. If you would like more information on penalties or interest, visit <a href="#">Self-Evaluation and Learning Tool (SELT): Cancel or waive penalties and interest</a>
                            </div>
-                           <div class="line"></div>
                         </div>
-                        <div class="alert-content">
-                          Filing an objection may not be the best solution for your situation. You may be looking to change your tax return. To learn how to do so for an individual tax account, go to <a href="#">How to change your return.</a> To learn how to do this for a business account, go to <a href="#">My Business Account</a>.
-                        </div>
-                     </div>
-                     <div class="alert hidden" id="alert-misdirect-cpp">
-                        <div class="alert-error">
-                           <div class="line"></div>
-                           <div><span class="material-icons">
-                              report
-                              </span>
+                        <div class="alert hidden" id="alert-misdirect-tfsa">
+                           <div class="alert-error">
+                              <div class="line"></div>
+                              <div><span class="material-icons">
+                                 report
+                                 </span>
+                              </div>
+                              <div class="line"></div>
                            </div>
-                           <div class="line"></div>
+                           <div class="alert-content">
+                              Filing an objection may not be the best solution for your situation.  You may be looking to waive or cancel taxes on your excess TFSA contributions. To learn how to do so, go to <a href="#">Waiver or cancellation of the TFSA taxes</a>
+                           </div>
                         </div>
-                        <div class="alert-content">
-                         To appeal a ruling under the Canada Pension Plan and/or Employment Insurance Act, go to <a href="#">CPT100 Appeal of a Ruling Under the Canada Pension Plan and/or Employment Insurance Act</a>
+                        <div class="alert hidden" id="alert-misdirect-changereturn">
+                           <div class="alert-error">
+                              <div class="line"></div>
+                              <div><span class="material-icons">
+                                 report
+                                 </span>
+                              </div>
+                              <div class="line"></div>
+                           </div>
+                           <div class="alert-content">
+                           Filing an objection may not be the best solution for your situation. You may be looking to change your tax return. To learn how to do so for an individual tax account, go to <a href="#">How to change your return.</a> To learn how to do this for a business account, go to <a href="#">My Business Account</a>.
+                           </div>
                         </div>
-                     </div>
-                  </fieldset>
-                  <button class="btn btn-primary next-button" type="button">Begin</button>
-                  <button class="hidden btn btn-primary out-button" type="button" onclick="location.href='index.html'">Return to Canada.ca</button>
+                        <div class="alert hidden" id="alert-misdirect-cpp">
+                           <div class="alert-error">
+                              <div class="line"></div>
+                              <div><span class="material-icons">
+                                 report
+                                 </span>
+                              </div>
+                              <div class="line"></div>
+                           </div>
+                           <div class="alert-content">
+                           To appeal a ruling under the Canada Pension Plan and/or Employment Insurance Act, go to <a href="#">CPT100 Appeal of a Ruling Under the Canada Pension Plan and/or Employment Insurance Act</a>
+                           </div>
+                        </div>
+                     </fieldset>
+                     <button class="btn btn-primary next-button" type="button">Begin</button>
+                     <button class="hidden btn btn-primary out-button" type="button" onclick="location.href='index.html'">Return to Canada.ca</button>
+                  </form>
                </div>
             </div>
          </section>
@@ -155,7 +158,7 @@
             <div class="step-content">
                <div class="container">
                   <form id="step-1-form">
-                     <div class="required">Fields marked with asterisk (<span class="ast">*</span>) are required.</div>
+                     <div class="required">Fields marked with an asterisk (<span class="ast">*</span>) are required.</div>
                      <fieldset id="s1q1-fieldset" data-radio-group>
                         <legend class="required-label"> Is this the first time an objection has been filed for this notice of assessment or determination?</legend>
                         <div class="group">
@@ -383,7 +386,7 @@
                               <input type="text" id="s1ind-sin" name="s1ind-sin" maxlength="9">
                            </fieldset>
                            
-                           </div>
+                     </div>
                      <div id="business-info-section" class="hidden">
                         <fieldset id="s1biz-bizaccount-fieldset">
                            <label for="s1biz-accountype" class="required-label">Select the business account type.</label>
@@ -906,16 +909,12 @@
                            <input type="text" id="s1-extension" name="s1-extension" class="quarter-width ">
                          </fieldset>
                         </div>
-                        </div>
-
-                      
-                      
-                
-                         <fieldset id="contactname-fieldset" class="hidden">
+                     </div>
+                     <fieldset id="contactname-fieldset" class="hidden">
                            <label class="required-label" for="s1-contact">Name of contact</label>
                            <input type="text" id="s1-contact" name="s1-contact">
-                        </fieldset>
-                     </div>
+                     </fieldset>
+                  
 
                      <button class="btn btn-secondary back-button" type="button">Back</button>
                      <button class="btn btn-primary next-button" type="button">Next</button>
@@ -934,7 +933,7 @@
             <div class="step-content">
                <div class="container">
                   <form id="step-2-form">
-                     <div class="required">Fields marked with asterisk (<span class="ast">*</span>) are required.</div>
+                     <div class="required">Fields marked with an asterisk (<span class="ast">*</span>) are required.</div>
 
                   <fieldset id="s2q0-fieldset" data-radio-group class="hidden">
                      <legend class="required-label"> Are you a large corporation with aprevious year taxable capital employed in Canada greater than $10,000,000?</legend>
@@ -1054,7 +1053,7 @@
             <div class="step-content">
                <div class="container">
                   <form id="step-3-form">
-                     <div class="required">Fields marked with asterisk (<span class="ast">*</span>) are required.</div>
+                     <div class="required">Fields marked with an asterisk (<span class="ast">*</span>) are required.</div>
                      <div id="s3-review-container">
                      </div>
                   </form>
