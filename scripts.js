@@ -245,38 +245,38 @@ class Stepper {
     }
 
     buildBusinessNumberSummary(stepForm) {
-                const summary = [];
+        const summary = [];
 
-            const mappings = [
-                { checkbox: "s1biz-accounttype-op1", label: "Corporation income tax", prefix: "RC", bn9: "s1biz-BN9-RC", bn4: "s1biz-BN4-RC" },
-                { checkbox: "s1biz-accounttype-op2", label: "GST/HST", prefix: "RT", bn9: "s1biz-BN9-RT", bn4: "s1biz-BN4-RT" },
-                { checkbox: "s1biz-accounttype-op3", label: "Payroll", prefix: "RP", bn9: "s1biz-BN9-RP", bn4: "s1biz-BN4-RP" },
-                { checkbox: "s1biz-accounttype-op4", label: "Air Travellers Security Charge", prefix: "ZA", bn9: "s1biz-BN9-ZA", bn4: "s1biz-BN4-ZA" },
-                { checkbox: "s1biz-accounttype-op5", label: "Excise Duty", prefix: "RD", bn9: "s1biz-BN9-RD", bn4: "s1biz-BN4-RD" },
-                { checkbox: "s1biz-accounttype-op6", label: "Excise Tax on Insurance Premiums", prefix: "RN", bn9: "s1biz-BN9-RN", bn4: "s1biz-BN4-RN" },
-                { checkbox: "s1biz-accounttype-op7", label: "Fuel Charge", prefix: "CT", bn9: "s1biz-BN9-CT", bn4: "s1biz-BN4-CT" },
-                { checkbox: "s1biz-accounttype-op8", label: "Luxury Tax", prefix: "LT", bn9: "s1biz-BN9-LT", bn4: "s1biz-BN4-LT" },
-                { checkbox: "s1biz-accounttype-op9", label: "Underused Housing Tax", prefix: "RU", bn9: "s1biz-BN9-RU", bn4: "s1biz-BN4-RU" },
-                { checkbox: "s1biz-accounttype-op11", label: "Global minimum tax", prefix: "PT", bn9: "s1biz-BN9-PT", bn4: "s1biz-BN4-PT" }
-            ];
+        const mappings = [
+            { checkbox: "s1biz-accounttype-op1", label: "Corporation income tax", prefix: "RC", bn9: "s1biz-BN9-RC", bn4: "s1biz-BN4-RC" },
+            { checkbox: "s1biz-accounttype-op2", label: "GST/HST", prefix: "RT", bn9: "s1biz-BN9-RT", bn4: "s1biz-BN4-RT" },
+            { checkbox: "s1biz-accounttype-op3", label: "Payroll", prefix: "RP", bn9: "s1biz-BN9-RP", bn4: "s1biz-BN4-RP" },
+            { checkbox: "s1biz-accounttype-op4", label: "Air Travellers Security Charge", prefix: "ZA", bn9: "s1biz-BN9-ZA", bn4: "s1biz-BN4-ZA" },
+            { checkbox: "s1biz-accounttype-op5", label: "Excise Duty", prefix: "RD", bn9: "s1biz-BN9-RD", bn4: "s1biz-BN4-RD" },
+            { checkbox: "s1biz-accounttype-op6", label: "Excise Tax on Insurance Premiums", prefix: "RN", bn9: "s1biz-BN9-RN", bn4: "s1biz-BN4-RN" },
+            { checkbox: "s1biz-accounttype-op7", label: "Fuel Charge", prefix: "CT", bn9: "s1biz-BN9-CT", bn4: "s1biz-BN4-CT" },
+            { checkbox: "s1biz-accounttype-op8", label: "Luxury Tax", prefix: "LT", bn9: "s1biz-BN9-LT", bn4: "s1biz-BN4-LT" },
+            { checkbox: "s1biz-accounttype-op9", label: "Underused Housing Tax", prefix: "RU", bn9: "s1biz-BN9-RU", bn4: "s1biz-BN4-RU" },
+            { checkbox: "s1biz-accounttype-op11", label: "Global minimum tax", prefix: "PT", bn9: "s1biz-BN9-PT", bn4: "s1biz-BN4-PT" }
+        ];
 
-            mappings.forEach(m => {
-                const cb = document.getElementById(m.checkbox);
+        mappings.forEach(m => {
+            const cb = document.getElementById(m.checkbox);
 
-                // If account-type checkbox is selected, build a readable summary
-                if (cb && cb.checked) {
-                    const bn9 = document.getElementById(m.bn9)?.value?.trim() || "";
-                    const bn4 = document.getElementById(m.bn4)?.value?.trim() || "";
+            // If account-type checkbox is selected, build a readable summary
+            if (cb && cb.checked) {
+                const bn9 = document.getElementById(m.bn9)?.value?.trim() || "";
+                const bn4 = document.getElementById(m.bn4)?.value?.trim() || "";
 
-                    // Combine BN9 + prefix + BN4 into a compact identifier for review
-                    const fullNumber = `${bn9} ${m.prefix}${bn4}`.trim();
+                // Combine BN9 + prefix + BN4 into a compact identifier for review
+                const fullNumber = `${bn9} ${m.prefix}${bn4}`.trim();
 
-                    summary.push(`${m.label} (${fullNumber})`);
-                }
-            });
+                summary.push(`${m.label} (${fullNumber})`);
+            }
+        });
 
-                // Use comma+space to separate multiple account entries in the review
-                return summary.join(", ");
+        // Use comma+space to separate multiple account entries in the review
+        return summary.join(", ");
     }
     loadStoredData() {
         this.steps.forEach((step, index) => {
@@ -356,7 +356,7 @@ class Step1Handler {
 
 
         this.indThirdPartyNumber = document.getElementById("s1-ind-thirdpartyref-fieldset");
-      
+
     }
 
     updateAddressFieldLabels() {
@@ -398,7 +398,8 @@ class Step1Handler {
 class Step2Handler {
     constructor() {
 
-        this.lightbox = new FormLightbox(document.getElementById("addnotice-lightbox"));
+        this.noticeLightbox = new FormLightbox(document.getElementById("addnotice-lightbox"));
+        this.excisetaxLightbox = new FormLightbox(document.getElementById("excisetax-lightbox"));
 
         this.notices = [];
         this.noticesTable = new TableObj("tb-add-notice");
@@ -463,7 +464,7 @@ class Step2Handler {
                 inputClasses: ['tax-year-input', 'quarter-width'],
                 rowClasses: ['tax-year-row', 'inline-flex', 'align-center'],
                 deleteButtonText: 'Delete'
-                
+
             });
         }
 
@@ -506,9 +507,9 @@ class Step2Handler {
 
         document.addEventListener("editRowEvent", (e) => {
             if (e.detail.tableID === "tb-add-notice") {
-                this.lightbox.setEditIndex(e.detail.index);
-                this.lightbox.populateForm(e.detail.rowData);
-                this.lightbox.openLightbox();
+                this.noticeLightbox.setEditIndex(e.detail.index);
+                this.noticeLightbox.populateForm(e.detail.rowData);
+                this.noticeLightbox.openLightbox();
 
             }
         });
@@ -521,7 +522,7 @@ class Step2Handler {
     }
 
     handleFormSubmit(formData) {
-        const editIndex = this.lightbox.getEditIndex();
+        const editIndex = this.noticeLightbox.getEditIndex();
         const newNotice = this.getNewNoticeFromForm(formData);
 
         this.updateNoticeTable(newNotice, editIndex);
@@ -544,14 +545,14 @@ class Step2Handler {
             noticeDate: noticeDate,
             taxYear: taxYear
         };
-        
+
     }
 
 
     updateNoticeTable(newNotice, editIndex) {
         if (editIndex !== null && editIndex !== undefined && editIndex !== "") {
             this.notices[editIndex] = newNotice;
-            this.lightbox.clearEditIndex();
+            this.noticeLightbox.clearEditIndex();
             this.noticesTable.rows[editIndex] = {
                 noticeDate: newNotice.noticeDate,
                 taxYear: newNotice.taxYear
@@ -766,16 +767,16 @@ class Step3Handler {
         this.reviewContainer.innerHTML = ""; // Clear previous content
 
         const steps = [{
-                stepNum: 1,
-                title: "Provide objection information",
-                storageKey: "stepData_1"
-            },
-            {
-                stepNum: 2,
-                title: "Describe your objection",
-                storageKey: "stepData_2"
+            stepNum: 1,
+            title: "Provide objection information",
+            storageKey: "stepData_1"
+        },
+        {
+            stepNum: 2,
+            title: "Describe your objection",
+            storageKey: "stepData_2"
 
-            }
+        }
         ];
         steps.forEach(({
             stepNum,
@@ -961,7 +962,7 @@ class CharacterCounter {
 }
 
 class ListBuilder {
-     constructor({
+    constructor({
         container,
         inputType = 'text',
         inputName,
@@ -1559,7 +1560,7 @@ class DataManager {
         let data = sessionStorage.getItem(key);
         return data ? JSON.parse(data) : null;
     }
-    
+
 }
 
 class FormLightbox {
@@ -1938,7 +1939,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //Accordion functionality
     const accordions = document.querySelectorAll('.accordion');
     accordions.forEach(accordion => {
-        accordion.addEventListener('click', function() {
+        accordion.addEventListener('click', function () {
             this.classList.toggle('active');
 
         });
