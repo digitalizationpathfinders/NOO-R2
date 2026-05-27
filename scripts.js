@@ -192,6 +192,11 @@ class Stepper {
             }
         }
 
+        // Debug: log what we're saving for easier diagnosis
+        try {
+            console.log('Saving step', stepNum, dataObj);
+        } catch (e) {}
+
         DataManager.saveData(`stepData_${stepNum}`, dataObj);
     }
 
@@ -320,8 +325,8 @@ class Stepper {
 
             }
         }
-        if (stepNum == 2) {
-
+        // Call onActivate if the handler exposes it — keeps activation consistent
+        if (typeof this.stepHandlers[stepNum]?.onActivate === 'function') {
             this.stepHandlers[stepNum].onActivate();
         }
     }
@@ -746,7 +751,8 @@ class Step3Handler {
         this.stepper = stepper;
         this.reviewContainer = document.getElementById("s3-review-container");
         this.submitBtn = document.getElementById("appsubmit-btn");
-        this.populateReview();
+        // Run activation to ensure the review is populated when the step becomes active
+        if (typeof this.onActivate === 'function') this.onActivate();
 
         // Listen for navigation events
         document.addEventListener("navigateToStep", (event) => {
@@ -811,13 +817,8 @@ class Step3Handler {
                 let value = data[key];
                 if (value == null) return;
 
-                // If a field is stored as an array (multiple checkboxes/inputs),
-                // join with ", " so the review shows a readable list with spaces.
-                if (Array.isArray(value)) {
-                    value = value.join(", ");
-                }
-
                 if (key === "notices") {
+                    console.log("happening", value, Array.isArray(value), typeof value);
                     subTableData = {
                         title: "Notices you added",
                         headers: ["Notice date", "Tax year"],
@@ -825,6 +826,12 @@ class Step3Handler {
                         rows: value
                     };
                     return;
+                }
+
+                // If a field is stored as an array (multiple checkboxes/inputs),
+                // join with ", " so the review shows a readable list with spaces.
+                if (Array.isArray(value)) {
+                    value = value.join(", ");
                 }
 
                 if (key === "s1biz-accounttype") {
@@ -857,6 +864,10 @@ class Step3Handler {
         document.addEventListener("editPanelEvent", (event) => {
             this.stepper.setActive(this.stepper.steps[event.detail.index]);
         });
+    }
+
+    onActivate() {
+        this.populateReview();
     }
 
     formatDate(value) {
@@ -1068,9 +1079,13 @@ class PanelObj {
 
         let subTableHTML = "";
 
-        // Generate sub-table dynamically if data is provided
-        if (this.subTable && this.subTable.rows && this.subTable.rows.length > 0) {
-            subTableHTML = `
+        // Generate sub-table dynamically if data is provided. Be defensive
+        // about the shape of `rows` because it may sometimes be an object
+        // (e.g. persisted and rehydrated as an object with numeric keys).
+        if (this.subTable && this.subTable.rows) {
+            const rowsArray = Array.isArray(this.subTable.rows) ? this.subTable.rows : Object.values(this.subTable.rows || {});
+            if (rowsArray.length > 0) {
+                subTableHTML = `
                 <h5>${this.subTable.title || "Subtable"}</h5>
                 <table class="review-table" cellpadding="0" cellspacing="0">
                     <thead>
@@ -1079,7 +1094,7 @@ class PanelObj {
                         </tr>
                     </thead>
                     <tbody>
-                        ${this.subTable.rows.map(row => `
+                        ${rowsArray.map(row => `
                             <tr>
                                 ${this.subTable.columns.map(column => `<td>${row[column] || "N/A"}</td>`).join("")}
                             </tr>
@@ -1087,6 +1102,7 @@ class PanelObj {
                     </tbody>
                 </table>
             `;
+            }
         }
 
         this.panelElement.innerHTML = `
@@ -1899,12 +1915,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add event listeners to all next buttons
     document.querySelector('.stepper').addEventListener('click', (event) => {
-        if (event.target.classList.contains('next-button')) {
+        if (event.target.closest && event.target.closest('.next-button')) {
             stepper.navigateStep('next');
-
-        } else if (event.target.classList.contains('back-button')) {
+        } else if (event.target.closest && event.target.closest('.back-button')) {
             stepper.navigateStep('back');
-
         }
     });
 
