@@ -430,6 +430,16 @@ class Step2Handler {
                 this.renderLargeCorpQuestion();
                 this.updateNoticesHeader();
                 this.updateObjectionDescriptionText();
+                // If user flow changes (e.g., user switches to Business), update
+                // the extension explanatory text so the messaging stays in sync.
+                this.updateExtensionText?.();
+            }
+
+            // When notices are saved (added/edited/deleted) evaluate whether the
+            // time extension field should be displayed. Use persisted notices
+            // so we only show the field after the user finalizes entries.
+            if (e?.detail?.key === 'notices') {
+                this.updateExtensionDisplayBasedOnNotices?.();
             }
         });
 
@@ -442,6 +452,10 @@ class Step2Handler {
             this.renderLargeCorpQuestion();
             this.updateNoticesHeader();
             this.updateObjectionDescriptionText();
+            // Keep the extension explanatory text in sync if account-type toggles change the flow
+            this.updateExtensionText?.();
+            // Also re-evaluate extension visibility based on any already-saved notices
+            this.updateExtensionDisplayBasedOnNotices?.();
         };
 
         if (corpCheckboxEl) {
@@ -531,8 +545,67 @@ class Step2Handler {
         const newNotice = this.getNewNoticeFromForm(formData);
 
         this.updateNoticeTable(newNotice, editIndex);
-        this.handleNoticeDateChange();
     }
+
+    updateExtensionText() {
+        if (!this.extensionFieldset) return;
+        const container = this.extensionFieldset.querySelector('.ml-16px');
+        if (!container) return;
+
+        if (this.userType === 'Business') {
+            container.innerHTML = `
+                <p>The time limit for filing an objection for businesses is 90 days from the date of your notice of assessment or determination.</p>
+                <p>An extension may be granted if you explain why you did not file your objection within the time limit.</p>
+            `;
+        } else {
+            container.innerHTML = `
+                <p>The time limit for filing an objection is the latest of the following 2 dates:</p>
+                <ul>
+                   <li>one year after the tax filing deadline for the return</li>
+                   <li>90 days from the date of your notice of assessment or determination (excluding loss determinations)</li>
+                </ul>
+                An extension may be granted if you explain why you did not file your objection within the time limit.
+            `;
+        }
+    }
+
+    updateExtensionDisplayBasedOnNotices() {
+        if (!this.extensionFieldset) return;
+
+        const notices = DataManager.getData('notices') || this.noticesTable.rows || [];
+
+        let shouldShow = false;
+        const now = new Date();
+
+        if (this.userType === 'Business') {
+            // For business notices, use the notice date only: show the extension
+            // fieldset if any saved notice is older than 90 days from that date.
+            for (const n of notices) {
+                const noticeDateStr = n?.noticeDate;
+                const noticeDate = new Date(noticeDateStr);
+                if (noticeDateStr && !isNaN(noticeDate)) {
+                    const deadline = Utils.addDays(noticeDate, 90);
+                    if (now > deadline) {
+                        shouldShow = true;
+                        break;
+                    }
+                }
+            }
+        } else {
+            // For individuals/others, if any saved notice has exceeded the
+            // applicable deadline (existing logic per-notice), show the fieldset.
+            for (const n of notices) {
+                const noticeDateStr = n?.noticeDate;
+                if (this.isMoreThan90Days(noticeDateStr)) {
+                    shouldShow = true;
+                    break;
+                }
+            }
+        }
+
+        this.extensionFieldset.classList.toggle('hidden', !shouldShow);
+    }
+
     getNewNoticeFromForm(formData) {
 
         let noticeDate = formData["s2noticedate"];
@@ -594,9 +667,11 @@ class Step2Handler {
         this.updateNoticesHeader();
         this.updateObjectionDescriptionText();
 
-        if (this.noticeDateField?.value) {
-            this.handleNoticeDateChange();
-        }
+        // Ensure extension explanatory text matches the selected flow and
+        // evaluate whether the extension fieldset should be shown based on
+        // any already-saved notices in the table.
+        this.updateExtensionText();
+        this.updateExtensionDisplayBasedOnNotices();
     }
 
     renderLargeCorpQuestion() {
@@ -684,12 +759,10 @@ class Step2Handler {
     }
 
     handleNoticeDateChange() {
-        const dateValue = this.noticeDateField.value;
-        const showExtension = this.isMoreThan90Days(dateValue);
-
-        if (this.extensionFieldset) {
-            this.extensionFieldset.classList.toggle("hidden", !showExtension);
-        }
+        // Deprecated for live input use — the time extension display should only
+        // be evaluated after the user saves notices to the table. No-op here
+        // to prevent premature display while the lightbox is being filled.
+        return;
     }
 
     isMoreThan90Days(dateStr) {
