@@ -667,9 +667,7 @@ class Step2Handler {
         this.updateNoticesHeader();
         this.updateObjectionDescriptionText();
 
-        // Ensure extension explanatory text matches the selected flow and
-        // evaluate whether the extension fieldset should be shown based on
-        // any already-saved notices in the table.
+        // Ensure extension explanatory text matches the selected flow and evaluate whether the extension fieldset should be shown based on any already-saved notices in the table.
         this.updateExtensionText();
         this.updateExtensionDisplayBasedOnNotices();
     }
