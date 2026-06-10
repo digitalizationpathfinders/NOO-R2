@@ -1695,12 +1695,29 @@ class FormLightbox {
 
     clearFormData() {
         if (!this.form) return;
+
+        // Remove duplicate dynamic array fields, leaving only the first input per name.
+        const arrayInputs = Array.from(this.form.querySelectorAll('[data-array="true"]'));
+        const seen = new Set();
+        arrayInputs.forEach(input => {
+            const name = input.name;
+            if (!name) return;
+            if (seen.has(name)) {
+                if (input.parentElement) {
+                    input.parentElement.remove();
+                } else {
+                    input.remove();
+                }
+            } else {
+                seen.add(name);
+            }
+        });
+
         this.form.querySelectorAll("input, select, textarea").forEach(input => {
             if (input.type === "checkbox" || input.type === "radio") {
                 input.checked = false;
             } else {
                 input.value = "";
-
             }
         });
         let hiddenEls = this.form.querySelectorAll("[data-inithidden]");
@@ -1718,8 +1735,13 @@ class FormLightbox {
     populateForm(data) {
         if (!this.form) return;
         Object.keys(data).forEach((key) => {
-            const input = this.form.querySelector(`[name="${key}"]`);
-            if (input) input.value = data[key];
+            const values = Array.isArray(data[key]) ? data[key] : [data[key]];
+            const inputs = Array.from(this.form.querySelectorAll(`[name="${key}"]`));
+            if (inputs.length > 0) {
+                inputs.forEach((input, index) => {
+                    input.value = values[index] || "";
+                });
+            }
         });
     }
 
@@ -1727,8 +1749,9 @@ class FormLightbox {
         const formData = new FormData(this.form);
         let dataObj = {};
 
-        formData.forEach((value, key) => {
-            dataObj[key] = value;
+        Array.from(new Set(Array.from(formData.keys()))).forEach((key) => {
+            const values = formData.getAll(key).map(v => v);
+            dataObj[key] = values.length > 1 ? values : values[0];
         });
 
         document.dispatchEvent(new CustomEvent("lightboxSubmitted", {
