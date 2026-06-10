@@ -554,8 +554,7 @@ class Step2Handler {
 
         if (this.userType === 'Business') {
             container.innerHTML = `
-                <p>The time limit for filing an objection for businesses is 90 days from the date of your notice of assessment or determination.</p>
-                <p>An extension may be granted if you explain why you did not file your objection within the time limit.</p>
+                <p>You have 90 days from the notice date to file an objection. An extension may be granted if you explain why you did not file your objection within the time limit.</p>
             `;
         } else {
             container.innerHTML = `
